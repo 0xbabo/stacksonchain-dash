@@ -32,17 +32,26 @@ with const as ( select
 ), token_prices as (
     select distinct on (token) token, price
     from prices.dex_tokens_stx
-    where token not in (
-        'SP1Z92MPDQEWZXW36VX71Q25HKF5K2EPCJ304F275.tokensoft-token-v4ksvi3n4p1::tokensoft-token', -- XSHIB
-        'SP1Z92MPDQEWZXW36VX71Q25HKF5K2EPCJ304F275.tokensoft-token-v4k23p0pphz::tokensoft-token' -- DOGEX
-    )
 	order by token, ts desc
+), token_pools as (
+    select distinct on (contract_id, token_x, token_y) token_x, token_y, balance_x, balance_y
+    from prices.swap_balances
+    order by contract_id, token_x, token_y, block_height desc
+), token_liquidity as (
+    select tk.contract_id,
+        sum(CASE WHEN tk.contract_id = token_x THEN balance_x ELSE balance_y END / tky.base * tk.base) as liquidity
+    from tokens tk
+    left join token_pools on (tk.contract_id in (token_x, token_y))
+    left join tokens tky on (tky.contract_id = token_y) -- balances both use decimals from token_y
+    group by tk.contract_id
 )
 select name, symbol, decimals,
     to_char(supply / base, 'fm999G999G999G999G999G999D999') as "Circulating Supply",
     (supply / base * price) as "Market Cap (STX)",
+    (liquidity / base * price) as "Liquidity (STX)",
     split_part(contract_id,'::',1) as "Explorer"
 from tokens
 left join token_prices on (contract_id = token)
 left join token_supply on (contract_id = asset_identifier)
-order by "Market Cap (STX)" desc nulls last
+left join token_liquidity using (contract_id)
+order by (CASE WHEN liquidity/base*price > 1000 THEN supply/base*price ELSE liquidity/base*price END) desc nulls last
