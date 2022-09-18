@@ -31,6 +31,7 @@ select name, symbol, decimals,
     to_char(supply / base, 'fm999G999G999G999G999D999') as "Circulating Supply",
     (supply / base * price) as "Market Cap (STX)",
     split_part(contract_id,'::',1) as "Explorer"
+    -- TODO: liquidity, volume
 from tokens
 left join token_prices on (contract_id = token)
 left join token_events on (contract_id = asset_identifier)
