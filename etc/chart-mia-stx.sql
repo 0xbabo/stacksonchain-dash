@@ -16,18 +16,19 @@ with const as ( select
         or contract_call_contract_id like 'SP3K8BC0PPEVCV7NZ6QSRWPQ2JE9E5B6N3PA0KBR9.%')
     and block_time > '2021-11-15T06:00:00Z'
 )
-select date_bin('12 hours', block_time, date_trunc('day',block_time)::timestamp) as interval,
+select date_bin('12 hours', block_time, date_trunc('month',block_time)::timestamp) as interval,
     max(fx.amount / fy.amount * tky.factor / tkx.factor ) * 10^3 as max_rate,
     min(fx.amount / fy.amount * tky.factor / tkx.factor ) * 10^3 as min_rate,
     avg(fx.amount / fy.amount * tky.factor / tkx.factor ) * 10^3 as avg_rate,
     LEAST(-3e-3 + sum(fy.amount / tky.factor) / 4e9, 15e-3) * 10^3 as lerp_vol,
-    0 as zero
-	from const cross join swaps trades
-    join ft_events fy
-        on (trades.tx_id = fy.tx_id and sender_address in (fy.sender, fy.recipient)
-            and fy.asset_identifier in (mia_v1, mia_v2))
-    join stx_events fx
-        on (trades.tx_id = fx.tx_id and sender_address in (fx.sender, fx.recipient))
-    join tokens tky on (tky.contract_id = fy.asset_identifier)
-    join tokens tkx on (tkx.contract_id like '%::wstx')
-    group by interval
+    0 as zero,
+    log( avg(fx.amount / fy.amount * tky.factor / tkx.factor) * 10^3 ) * 7.0 + 4.2 as lerp_log
+from const cross join swaps trades
+join ft_events fy on (trades.tx_id = fy.tx_id
+    and (sender_address = fy.sender or sender_address = fy.recipient)
+    and (fy.asset_identifier = mia_v1 or fy.asset_identifier = mia_v2))
+join stx_events fx on (trades.tx_id = fx.tx_id
+    and (sender_address = fx.sender or sender_address = fx.recipient))
+join tokens tky on (tky.contract_id = fy.asset_identifier)
+join tokens tkx on (tkx.contract_id like '%::wstx')
+group by interval

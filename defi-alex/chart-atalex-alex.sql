@@ -23,13 +23,13 @@ select date_bin('6 hours', block_time, date_trunc('day',block_time)::timestamp) 
     avg(fx.amount / fy.amount * tky.factor / tkx.factor) as avg_rate,
     LEAST(0.75 + sum(fy.amount / tky.factor) / 7e6, 1.4) as lerp_vol,
     (power(1.015, power(avg(datediff_h), 0.86) / 3.5)) as projected_rate
-	from swaps txs
-    join ft_events fy
-        on (txs.tx_id = fy.tx_id and sender_address in (fy.sender, fy.recipient))
-    join ft_events fx
-        on (txs.tx_id = fx.tx_id and sender_address in (fx.sender, fx.recipient))
-    join tokens tky on (tky.contract_id = fy.asset_identifier)
-    join tokens tkx on (tkx.contract_id = fx.asset_identifier)
-    where fy.asset_identifier = 'SP3K8BC0PPEVCV7NZ6QSRWPQ2JE9E5B6N3PA0KBR9.auto-alex::auto-alex'
-    and fx.asset_identifier = 'SP3K8BC0PPEVCV7NZ6QSRWPQ2JE9E5B6N3PA0KBR9.age000-governance-token::alex'
-    group by interval
+from swaps txs
+join ft_events fy
+    on (txs.tx_id = fy.tx_id and sender_address in (fy.sender, fy.recipient))
+join ft_events fx
+    on (txs.tx_id = fx.tx_id and sender_address in (fx.sender, fx.recipient))
+join tokens tky on (tky.contract_id = fy.asset_identifier)
+join tokens tkx on (tkx.contract_id = fx.asset_identifier)
+where fy.asset_identifier = 'SP3K8BC0PPEVCV7NZ6QSRWPQ2JE9E5B6N3PA0KBR9.auto-alex::auto-alex'
+and fx.asset_identifier = 'SP3K8BC0PPEVCV7NZ6QSRWPQ2JE9E5B6N3PA0KBR9.age000-governance-token::alex'
+group by interval

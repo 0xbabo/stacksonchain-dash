@@ -8,8 +8,8 @@ with const as ( select
         (properties ->> 'symbol') symbol,
         (properties ->> 'decimals') :: numeric decimals,
         power(10, (properties ->> 'decimals') :: numeric) base
-    from token_properties cross join const
-    where contract_id in (the_asset)
+    from token_properties
+    -- where contract_id in (...)
 )
 
 , events as (
@@ -32,7 +32,7 @@ with const as ( select
       recipient as address,
       amount as amount
     from events
-    where asset_event_type in ('mint', 'transfer')
+    where asset_event_type = 'mint' or asset_event_type = 'transfer'
     
     union all
     
@@ -41,7 +41,7 @@ with const as ( select
       sender as address,
       -amount as amount
     from events
-    where asset_event_type in ('transfer', 'burn')
+    where asset_event_type = 'burn' or asset_event_type = 'transfer'
 )
 
 select
@@ -50,4 +50,4 @@ select
 from base
 group by address
 order by holding desc
-limit 100
+limit 50
