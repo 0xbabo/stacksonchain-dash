@@ -72,13 +72,14 @@ union all
 )
 
 select
-    -- bns||'.'||namespace as account,
+    -- address as "Explorer",
     address as account,
+    -- bns||'.'||namespace as bns,
     sum(value) as "Value (STX)",
     symbol as "Top Asset"
 from balances
 join top using (address)
 -- left join stxop.bns_address using (address)
-group by 1, 3
+group by 1,3
 order by 2 desc
-limit 100
+limit 200
