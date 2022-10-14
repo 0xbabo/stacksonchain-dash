@@ -1,15 +1,17 @@
 with const as ( select
     'SPVRC3RHFD58B2PY1HZD2V71THPW7G445WBRCQYW.octopus_v01' as stackswap_locker,
     'SP2C2YFP12AJZB4MABJBAJ55XECVS7E4PMMZ89YZR.arkadiko-diko-init' as arkadiko_locker
-), tokens as (
-    select contract_id,
+)
+, tokens as (
+    select contract_id as asset_identifier,
         (properties ->> 'name') name,
         (properties ->> 'symbol') symbol,
         (properties ->> 'decimals') :: numeric decimals,
         power(10, (properties ->> 'decimals') :: numeric) base
     from token_properties
     --where contract_id in (...)
-), token_flow as (
+)
+, token_flow as (
     select account, asset_identifier, sum(amount) as balance from (
         select recipient as account, asset_identifier, sum(amount) as amount
         from ft_events
@@ -20,8 +22,9 @@ with const as ( select
         group by 1, 2
     ) sub
     group by 1, 2
-), token_supply as (
-    select asset_identifier as contract_id,
+)
+, token_supply as (
+    select asset_identifier,
         split_part(asset_identifier,'.',2) as contract_name,
         sum(balance) as supply,
         count(*) as users
@@ -29,21 +32,24 @@ with const as ( select
     cross join const
     where account not in (stackswap_locker, arkadiko_locker) -- NOTE: BYPASSES CHECK FOR NULL ADDRESS (MINT/BURN)
     group by 1
-), token_prices as (
-    select distinct on (1) token as contract_id, price
+)
+, token_prices as (
+    select distinct on (1) token as asset_identifier, price
     from prices.dex_tokens_stx
 	order by 1, ts desc
-), token_pools as (
+)
+, token_pools as (
     select distinct on (contract_id, token_x, token_y) token_x, token_y, balance_x, balance_y
     from prices.swap_balances
     order by contract_id, token_x, token_y, block_height desc
-), token_liquidity as (
-    select tk.contract_id,
-        sum(CASE WHEN tk.contract_id = token_x THEN balance_x ELSE balance_y END / tky.base * tk.base) as liquidity
+)
+, token_liquidity as (
+    select tk.asset_identifier,
+        sum(CASE WHEN tk.asset_identifier = token_x THEN balance_x ELSE balance_y END / tky.base * tk.base) as liquidity
     from tokens tk
-    join token_pools on (tk.contract_id in (token_x, token_y))
-    join tokens tky on (tky.contract_id = token_y) -- balances both use decimals from token_y
-    group by tk.contract_id
+    join token_pools on (tk.asset_identifier in (token_x, token_y))
+    join tokens tky on (tky.asset_identifier = token_y) -- balances both use decimals from token_y
+    group by tk.asset_identifier
 )
 select
     CASE WHEN symbol is null THEN null ELSE format('%s (%s)', name, symbol) END as name_symbol,
@@ -57,10 +63,12 @@ select
         END as "Circulating Supply",
     (supply / base * price) as "Market Cap (STX)",
     (liquidity / base * price) as "Liquidity (STX)",
-    split_part(contract_id,'::',1) as "Explorer"
+    block_height as genesis,
+    contract_id as "Explorer"
 from tokens
-full join token_prices using (contract_id)
-full join token_liquidity using (contract_id)
-full join token_supply using (contract_id)
+full join token_prices using (asset_identifier)
+full join token_liquidity using (asset_identifier)
+full join token_supply using (asset_identifier)
+left join smart_contracts on (contract_id = split_part(asset_identifier,'::',1))
 where users > 2
 order by users desc nulls last

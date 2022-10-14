@@ -6,7 +6,9 @@ with const as ( select
     -- functions: add-to-position-and-switch, swap-x-for-y, swap-y-for-x
     --   reduce-position-key, reduce-position-yield-many
     --   roll-borrow, roll-deposit-many, roll-auto
-), tokens as (
+)
+
+, tokens as (
     select contract, contract_id, power(10,(properties->>'decimals')::numeric) as factor
     from token_properties cross join const
     where contract_id in (
@@ -15,14 +17,18 @@ with const as ( select
         'SP3K8BC0PPEVCV7NZ6QSRWPQ2JE9E5B6N3PA0KBR9.yield-alex-v1',
         key_alex_soc
     )
-), txs as (
+)
+
+, txs as (
     select tx.* from const cross join transactions tx
     where status = 1 and tx_type = 'contract call'
 	--and contract_call_function_name = 'swap-helper'
     and contract_call_contract_id = crp_contract
 	--and sender_address = principal
 	and block_time > '2022-06-21T06:00:00Z'
-), events as (
+)
+
+, events as (
     select block_time, asset_identifier,
         sum( fte.amount / tk.factor * (CASE
                 WHEN (principal = recipient) THEN 1
@@ -34,7 +40,9 @@ with const as ( select
     join tokens tk on (tk.contract_id = fte.asset_identifier or
         (fte.asset_identifier = key_alex_tru and tk.contract_id = key_alex_soc))
     group by block_time, asset_identifier
-), deltas as (
+)
+
+, deltas as (
     select date_bin('6 hours', block_time, date_trunc('day',block_time)::timestamp) as interval,
     --select block_time as interval,
         sum( (CASE asset_identifier
@@ -55,7 +63,9 @@ with const as ( select
             ) * -1 as delta_key
 	from events cross join const
     group by interval
-), running as (
+)
+
+, running as (
     select interval,
     sum(delta_alex) over (order by interval) as net_alex,
     sum(delta_auto) over (order by interval) as net_auto
@@ -63,6 +73,10 @@ with const as ( select
     --sum(delta_key) over (order by interval) as key_net
     from deltas
 )
-select interval, net_alex, net_auto,
-    net_alex/net_auto * 100e3 as ratio_scaled_100k
+
+select interval
+, net_alex
+, net_auto
+, 100e3 * net_alex/net_auto as ratio_100k
+, 100e3 * 1 as one_100k
 from running

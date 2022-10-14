@@ -17,9 +17,9 @@ select date_bin('12 hours', block_time, date_trunc('day',block_time)::timestamp)
     max(fx.amount / fy.amount * tky.factor / tkx.factor) as max_rate,
     min(fx.amount / fy.amount * tky.factor / tkx.factor) as min_rate,
     avg(fx.amount / fy.amount * tky.factor / tkx.factor) as avg_rate,
-    LEAST(0.0 + sum(fy.amount / tky.factor) / 5e6, 0.7) as lerp_vol
+    LEAST(0.7, 0.0 + sum(fy.amount / tky.factor) / 5e6) as lerp_vol,
     --0 as zero
-    -- log( avg(fx.amount / fy.amount * tky.factor / tkx.factor) ) * 1.0 + 1.5 as lerp_log
+    log( avg(fx.amount / fy.amount * tky.factor / tkx.factor) ) * 1.0 + 1.5 as lerp_log
 	from swaps txs
     join ft_events fy
         on (txs.tx_id = fy.tx_id and sender_address in (fy.sender, fy.recipient))

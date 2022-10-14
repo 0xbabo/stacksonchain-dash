@@ -1,5 +1,5 @@
 with tokens as (
-    select contract_id,
+    select contract_id as asset_identifier,
         (properties ->> 'name') name,
         (properties ->> 'symbol') symbol,
         (properties ->> 'decimals') :: numeric decimals,
@@ -9,6 +9,8 @@ with tokens as (
         'SP1Z92MPDQEWZXW36VX71Q25HKF5K2EPCJ304F275.tokensoft-token-v4ktqebauw9', -- zero
         'SP213KNHB5QD308TEESY1ZMX1BP8EZDPG4JWD0MEA.fari-token-mn',
         'SP3NE50GEXFG9SZGTT51P40X2CKYSZ5CC4ZTZ7A2G.welshcorgicoin-token',
+        -- 'SPASZ0VJQTS22YR4HCCAGR05GGRF9V8TCM219YQ8.points',
+        'SPASZ0VJQTS22YR4HCCAGR05GGRF9V8TCM219YQ8.board-points',
         -- 'SP277HZA8AGXV42MZKDW5B2NNN61RHQ42MTAHVNB1.stacks-pops-ice-v1',
         'SP277HZA8AGXV42MZKDW5B2NNN61RHQ42MTAHVNB1.stacks-pops-ice-v2',
         'SP2P6KSAJ4JVV8PFSNKJ9BNG5PEPR4RT71VXZHWBK.forcecoin',
@@ -19,22 +21,27 @@ with tokens as (
         'SP2KAF9RF86PVX3NEE27DFV1CQX0T4WGR41X3S45C.spaghetti'
         -- TOX (Project Indigo - off chain?)
         -- Pogs (The Guests - off chain?)
+        -- Shrooms (Nonnish - off chain?)
     )
-), token_flow as (
+)
+
+, token_flow as (
     select account, asset_identifier, sum(delta) as balance from (
         select recipient as account, asset_identifier, sum(amount) as delta
         from ft_events
-        join tokens on (asset_identifier = contract_id)
+        join tokens using (asset_identifier)
         group by 1, 2
     union all
         select sender as account, asset_identifier, -sum(amount) as delta
         from ft_events
-        join tokens on (asset_identifier = contract_id)
+        join tokens using (asset_identifier)
         group by 1, 2
     ) sub
     group by 1, 2
-), token_supply as (
-    select asset_identifier as contract_id,
+)
+
+, token_supply as (
+    select asset_identifier,
         split_part(asset_identifier,'.',2) as contract_name,
         sum(balance) as supply,
         count(*) as users
@@ -42,13 +49,16 @@ with tokens as (
     where account is not null
     group by 1
 )
+
 select
     name, symbol, contract_name,
     decimals, users,
     CASE WHEN base is null THEN supply::varchar
         ELSE to_char( supply / base, 'fm999G999G999G999G999G999D999')
         END as "Circulating Supply",
+    block_height as genesis,
     split_part(contract_id,'::',1) as "Explorer"
 from tokens
-join token_supply using (contract_id)
+join token_supply using (asset_identifier)
+left join smart_contracts on (contract_id = split_part(asset_identifier,'::',1))
 order by users desc nulls last
