@@ -22,7 +22,7 @@ select date_bin('6 hours', block_time, date_trunc('day',block_time)::timestamp) 
     min(fx.amount / fy.amount * tky.factor / tkx.factor) as min_rate,
     avg(fx.amount / fy.amount * tky.factor / tkx.factor) as avg_rate,
     LEAST(0.75 + sum(fy.amount / tky.factor) / 7e6, 1.4) as lerp_vol,
-    (power(1.015, power(avg(datediff_h), 0.86) / 3.5)) as projected_rate
+    (power(1.04, power(avg(datediff_h), 0.76) / 6.0)) as projected_rate
 from swaps txs
 join ft_events fy
     on (txs.tx_id = fy.tx_id and sender_address in (fy.sender, fy.recipient))
