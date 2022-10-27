@@ -10,7 +10,7 @@ with registry as (
     limit 1000000
 )
 
-select date_bin('7 days', block_time, to_timestamp(0)) as interval
+select date_bin('7 days', block_time, date_trunc('hour',now()+interval'6 hours')) as interval
 , count(*) filter (where name ~ '^[a-z]+$' and length(name)<3) as "1-2 letters"
 , count(*) filter (where name ~ '^[a-z]+$' and length(name)=3) as "3 letters"
 , count(*) filter (where name ~ '^[a-z]+$' and length(name)=4) as "4 letters"

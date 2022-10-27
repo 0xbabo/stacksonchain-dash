@@ -4,7 +4,7 @@ with markets (title,contract_format,function_name) as (VALUES
     ('Gamma','%.bns-%-v1', 'purchase-name')
 )
 
-, bns_current as (
+, bns_lookup as (
     select distinct on (address) address, bns, namespace, block_height
     from stxop.bns_address
     join transactions using (tx_hash)
@@ -22,11 +22,11 @@ from nft_events nx
 join transactions tx using (tx_id)
 join markets on (contract_call_contract_id like contract_format and contract_call_function_name = function_name)
 join stx_events sx using (tx_id)
-join bns_current sale on (
+join bns_lookup sale on (
     bns = encode(decode(replace(split_part(split_part(nx.value,',',1),'=',2) ,'0x',''), 'hex'), 'escape') and
     namespace = encode(decode(replace(split_part(split_part(nx.value,'=',3),'}',1) ,'0x',''), 'hex'), 'escape')
 )
-left join bns_current buyer on (
+left join bns_lookup buyer on (
     CASE WHEN function_name = 'purchase-name'
     THEN tx.sender_address
     ELSE nx.recipient
