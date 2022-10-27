@@ -1,4 +1,2 @@
-with links ("Description", "Link") as (VALUES
-    ('More Analytics', 'https://stacksonchain.com/dashboards/Analytics-Hub-by-Babo/167')
-)
-select * from links
+select 'https://owl.link/1babo.btc' as "Link"
+, 'BNS, social, and more analytics.' as "Description"
