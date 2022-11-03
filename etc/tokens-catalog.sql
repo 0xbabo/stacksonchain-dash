@@ -40,7 +40,7 @@ with const as ( select
 )
 , token_pools as (
     select distinct on (contract_id, token_x, token_y) token_x, token_y, balance_x, balance_y
-    from prices.swap_balances
+    from dex.swap_balances
     order by contract_id, token_x, token_y, block_height desc
 )
 , token_liquidity as (
