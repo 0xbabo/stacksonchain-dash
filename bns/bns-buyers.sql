@@ -5,10 +5,8 @@ with markets (title,contract_format,function_name) as (VALUES
 )
 
 , bns_lookup as (
-    select distinct on (address) address, bns, namespace, block_height
+    select distinct on (address) address, bns, namespace
     from stxop.bns_address
-    join transactions using (tx_hash)
-    order by address, block_height desc
 )
 
 select CASE WHEN function_name = 'purchase-name'
