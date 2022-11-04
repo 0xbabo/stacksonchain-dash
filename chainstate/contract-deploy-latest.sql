@@ -10,4 +10,4 @@ join txs using (tx_hash, block_height)
 where contract_id not like '%.bns-%-v1'
 and contract_id not like 'SP3Z3KVR3T0F255SC8170SZY7YB52YPY9H9TNZ9PM.neoswap-sc-%'
 order by block_height desc
-limit 500
+limit 100
