@@ -1,4 +1,8 @@
-select split_part(right(fa.repr,-1),'.',1) as fa_comm_deployer
+select right(fa.repr,-1) as fa_comm
+-- select split_part(right(fa.repr,-1),'.',1) as fa_comm_deployer
+-- , fa.name as fa_name
+-- , contract_call_contract_id
+-- , contract_call_function_name
 , count(distinct fa.repr) as comm_traits
 , count(distinct contract_call_contract_id) as contracts
 , count(distinct sender_address) as users
