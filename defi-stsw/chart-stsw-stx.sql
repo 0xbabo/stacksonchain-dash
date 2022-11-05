@@ -20,7 +20,7 @@ with tokens (token_x,base_x,token_y,base_y) as (VALUES
 	-- and block_time > now() - interval '1 month'
 )
 
-select date_bin('24 hours', block_time, date_trunc('month',now())) as interval
+select date_bin('24 hours', block_time, '2021-11-01') as interval
 , max(fx.amount / fy.amount * base_y / base_x ) as max_rate
 , min(fx.amount / fy.amount * base_y / base_x ) as min_rate
 , avg(fx.amount / fy.amount * base_y / base_x ) as avg_rate
