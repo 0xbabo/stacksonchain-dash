@@ -1,8 +1,9 @@
 -- NOTE: Does not track indirect contract calls by third party contracts.
 
 with categories (link, name, contract_like, source_match) as (VALUES
-    ('https://gamma.io/collections/bns','Gamma BNS','%.bns-%-%','SPNWZ5V2TPWGQGVDR6T7B6RQ4XMGZ4PXTEE0VQ0S.gamma-commission'),
+    -- ('https://gamma.io/collections/bns','Gamma BNS','%.bns-%-%','SPNWZ5V2TPWGQGVDR6T7B6RQ4XMGZ4PXTEE0VQ0S.gamma-commission'),
         -- does not include initial deployment txs
+    -- Gamma, Byzantion, Stacks Art moved to separate query
     ('https://neoswap.party/','NeoSwap','SP3Z3KVR3T0F255SC8170SZY7YB52YPY9H9TNZ9PM.%',''), -- NOTE: double counts volume
     ('https://www.alexgo.io/','ALEX','SP3K8BC0PPEVCV7NZ6QSRWPQ2JE9E5B6N3PA0KBR9.%',''),
     ('https://stackswap.org/','Stackswap','SP1Z92MPDQEWZXW36VX71Q25HKF5K2EPCJ304F275.%',''), -- TODO: exclude %-oracle-%
@@ -31,16 +32,10 @@ with categories (link, name, contract_like, source_match) as (VALUES
     ('https://www.bitcoinbadgers.art/','Bitcoin Badgers','SP27F9EJH20K3GT6GHZG0RD08REZKY2TDMD6D9M2Z.%badgers%',''),
     ('https://www.stacks-tiles.com/','Stacks Tiles','SPASZ0VJQTS22YR4HCCAGR05GGRF9V8TCM219YQ8.%',''),
     ('https://stackspops.club/','Stacks Pops','%stacks-pops%',''),
-    ('https://www.stacksart.com/','Stacks Art','SPJW1XE278YMCEYMXB8ZFGJMH8ZVAAEDP2S2PJYG.stacks-art-market%',''),
     ('https://www.stackspunks.com/','Stacks Punks','SPJW1XE278YMCEYMXB8ZFGJMH8ZVAAEDP2S2PJYG.stacks-punks-market',''),
     ('https://thisisnumberone.com/','This is #1 NFTs','SP3QSAJQ4EA8WXEDSRRKMZZ29NH91VZ6C5X88FGZQ.thisisnumberone%',''),
     ('https://www.crashpunks.com/','Crashpunks','SP3QSAJQ4EA8WXEDSRRKMZZ29NH91VZ6C5X88FGZQ.crashpunks%',''),
     ('https://www.heylayer.com/','HeyLayer NFTs','SP248HH800501WYSG7Z2SS1ZWHQW1GGH85ME34NT2.%',''),
-    ('https://www.tradeport.xyz/','Byzantion Market','SP2KAF9RF86PVX3NEE27DFV1CQX0T4WGR41X3S45C.%wrapper%',''),
-    ('https://www.tradeport.xyz/','Byzantion Market','SP2KAF9RF86PVX3NEE27DFV1CQX0T4WGR41X3S45C.%market%',''),
-    ('https://www.tradeport.xyz/','Byzantion Market','SP1BX0P4MZ5A3A5JCH0E10YNS170QFR2VQ6TT4NRH.byzantion-market%',''),
-    ('https://gamma.io/','Gamma Market','SPNWZ5V2TPWGQGVDR6T7B6RQ4XMGZ4PXTEE0VQ0S.marketplace%',''),
-    ('https://gamma.io/','Gamma Market','SP1CSHTKVHMMQJ7PRQRFYW6SB4QAW6SR3XY2F81PA.stxnft-auctions%',''),
     ('https://price.btc.us/','price.btc.us','SP3XYJ8XFZYF7MD86QQ5EF8HBVHHZFFQ9HM6SPJNQ.%',''),
     ('https://boom.money/','Boomboxes','%.boombox-admin%',''),
     ('https://boom.money/','Boomboxes','%.boomboxes-cycle-%',''),
@@ -69,7 +64,7 @@ select link as "Link", cat.name
 from categories cat
 join smart_contracts sc on (
     sc.contract_id like cat.contract_like
-    and position(cat.source_match in sc.source_code) > 0
+    -- and position(cat.source_match in sc.source_code) > 0
     -- length(raw_tx) < max_size
 )
 left join transactions tx on (
