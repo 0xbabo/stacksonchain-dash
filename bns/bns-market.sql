@@ -29,6 +29,10 @@ with listings as (
 select address as "Explorer"
 , block_height
 , price as "Price (STX)"
+, name||'.'||namespace as bns_fqn
+, CASE WHEN left(name,4) = 'xn--'
+    THEN public.idn_punycode_decode(right(name,-4)) ||'.'|| namespace
+    END as depunycode
 , 'https://gamma.io/collections/bns/' || name || '.' || namespace as "Link"
 from listings
 order by block_height desc, id desc
