@@ -1,9 +1,11 @@
--- NOTE: Does not track indirect contract calls by third party contracts.
-
-with categories (link, name, contract_like, source_match) as (VALUES
+with categories (link,name,contract_like,source_match) as (VALUES
     -- ('https://gamma.io/collections/bns','Gamma BNS','%.bns-%-%','SPNWZ5V2TPWGQGVDR6T7B6RQ4XMGZ4PXTEE0VQ0S.gamma-commission'),
-        -- does not include initial deployment txs
-    -- Gamma, Byzantion, Stacks Art moved to separate query
+    ('https://www.tradeport.xyz/','Byzantion (NFT Market)','SP2KAF9RF86PVX3NEE27DFV1CQX0T4WGR41X3S45C.%wrapper%',''),
+    ('https://www.tradeport.xyz/','Byzantion (NFT Market)','SP2KAF9RF86PVX3NEE27DFV1CQX0T4WGR41X3S45C.%market%',''),
+    ('https://www.tradeport.xyz/','Byzantion (NFT Market)','SP1BX0P4MZ5A3A5JCH0E10YNS170QFR2VQ6TT4NRH.byzantion-market%',''),
+    ('https://www.stacksart.com/','Stacks Art (NFT Market)','SPJW1XE278YMCEYMXB8ZFGJMH8ZVAAEDP2S2PJYG.stacks-art%',''),
+    ('https://gamma.io/','Gamma (NFT Market)','SP1CSHTKVHMMQJ7PRQRFYW6SB4QAW6SR3XY2F81PA.stxnft-auctions%',''),
+    ('https://gamma.io/','Gamma (NFT Market)','SPNWZ5V2TPWGQGVDR6T7B6RQ4XMGZ4PXTEE0VQ0S.marketplace%',''),
     ('https://neoswap.party/','NeoSwap','SP3Z3KVR3T0F255SC8170SZY7YB52YPY9H9TNZ9PM.%',''), -- NOTE: double counts volume
     ('https://www.alexgo.io/','ALEX','SP3K8BC0PPEVCV7NZ6QSRWPQ2JE9E5B6N3PA0KBR9.%',''),
     ('https://stackswap.org/','Stackswap','SP1Z92MPDQEWZXW36VX71Q25HKF5K2EPCJ304F275.%',''), -- TODO: exclude %-oracle-%
@@ -68,13 +70,13 @@ join smart_contracts sc on (
     -- length(raw_tx) < max_size
 )
 left join transactions tx on (
-    tx.contract_call_contract_id = sc.contract_id
+    contract_call_contract_id = sc.contract_id
+    -- or smart_contract_contract_id = sc.contract_id
 )
 left join stx_events sx on (
     sx.tx_id = tx.tx_id
     -- and sx.sender = tx.sender_address
 )
--- where block_time > now() - interval '1 days'
 group by 1,2
 order by users_1w desc, users_all desc
 limit 500
