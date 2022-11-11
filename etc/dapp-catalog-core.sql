@@ -17,6 +17,7 @@ with categories (link,name,contract_like_arr,source_match) as (VALUES
     ('https://www.lydian.xyz/','Lydian',ARRAY['SP3MBWGMCVC9KZ5DTAYFMG1D0AEJCR7NENTM3FTK5.%'],''),
     ('https://www.lnswap.org/','LNSwap',ARRAY['SP2507VNQZC9VBXM7X7KB4SF4QJDJRSWHG4V39WPY.%swap%'],''),
     ('https://www.catamaranswaps.org/','Catamaran Swaps',ARRAY['SP2PABAF9FTAJYNFZH93XENAJ8FVY99RRM50D2JG9.%'],''),
+    ('https://www.mateswap.io/','Cryptomate',ARRAY['SP32NTG209B861QBHF4TH0C86QB0A12TY2F16WHMY.%'],''), -- DEAD
     ('https://sendstx.com/','Send Many',ARRAY['SP3FBR2AGK5H9QBDH3EEN6DF8EK8JY7RX8QJ5SVTE.send-many%'],''),
     ('https://www.megapont.com/','Megapont',ARRAY['SP3D6PV2ACBPEKYJTCMH7HEN02KP87QSP8KTEH335.%'],''),
     ('https://satoshibles.com/','Satoshibles',ARRAY['SP6P4EJF0VG8V0RB3TQQKJBHDQKEF6NVRD1KZE3C.%'],''),
@@ -57,7 +58,15 @@ with categories (link,name,contract_like_arr,source_match) as (VALUES
     ('https://www.explorerguild.io/','Explorer Guild',ARRAY['SP2X0TZ59D5SZ8ACQ6YMCHHNR2ZN51Z32E2CJ173.%'],''),
     ('https://blocksurvey.io/','BlockSurvey',ARRAY['SP3A6FJ92AA0MS2F57DG786TFNG8J785B3F8RSQC9.%'],''),
     ('https://pool.xverse.app/','Xverse Pools',ARRAY['SPXVRSEH2BKSXAEJ00F1BY562P45D5ERPSKR4Q33.%'],''),
-    ('https://syvitamining.com/','Syvita Mining Guild',ARRAY['SP196Q1HN49MJTJFRW08RCRP7YSXY28VE72GQWS0P.%'],''),
+    ('https://syvitamining.com/','Syvita Mining Guild',ARRAY[''
+        ,'SP196Q1HN49MJTJFRW08RCRP7YSXY28VE72GQWS0P.%'
+        ,'SP343J7DNE122AVCSC4HEK4MF871PW470ZSXJ5K66.%'
+    ],''),
+    ('https://www.kcvdao.com/','KCV DAO',ARRAY[''
+        ,'SP1W7X92JG1BYPKG15KTS6398XN4D4HJP9TTXMQ38.%'
+        ,'SP36YQRWXTH3MHVC5GW32VFHNEF1YK30FXYXCKBDG.%'
+        ,'SP12G8K8PHHYQ1P1HGW4WA2BCZ9NGB6NWW7D9H3P.%'
+    ],''),
     ('https://minecitycoins.com/','CityCoins',ARRAY['%miamicoin-core%','%newyorkcitycoin-core%'],''),
     ('https://btc.us/','BNS',ARRAY['SP000000000000000000002Q6VF78.bns'],''),
     ('https://stacking.club/','Stacking/POX',ARRAY['SP000000000000000000002Q6VF78.pox'],'')
