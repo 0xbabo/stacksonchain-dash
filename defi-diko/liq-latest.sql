@@ -14,13 +14,13 @@ select tx.tx_hash as "Explorer"
 , status
 , right(arg_id.repr,-1)::int as vault_id
 , split_part(arg_ft.repr,'.',2) as coll_id
-, sum(fx.amount::numeric / ftp.base) filter (
+, coalesce(1e-6 * sum(sx.amount::numeric),0)
+    + coalesce(sum(fx.amount::numeric / ftp.base) filter (
     where split_part(fx.asset_identifier,'::',1) = right(arg_ft.repr,-1)
-    ) as coll_amount
+    ),0) as coll_amount
 , 1e-6 * sum(fx.amount::numeric) filter (
     where fx.asset_identifier like '%usda%'
     ) as usda_burned
-, 1e-6 * sum(sx.amount::numeric) as stx_xfer
 from transactions tx
 left join stx_events sx on (sx.tx_id = tx.tx_id and sx.sender = contract_call_contract_id)
 left join ft_events fx on (fx.tx_id = tx.tx_id and fx.sender = contract_call_contract_id)
