@@ -25,10 +25,10 @@ left join dex.swap_balances pool_alex_gov on (pool_alex_gov.token_x = token_alex
     and pool_alex_gov.block_height = b.block_height and pool_alex_gov.balance_x > 0)
 left join dex.swap_balances pool_alex_stx on (pool_alex_stx.token_x = token_wstx_alex and pool_alex_stx.token_y = token_alex
     and pool_alex_stx.block_height = b.block_height and pool_alex_stx.balance_x > 0)
-where 0 < pool_stsw.balance_x
+where b.block_time > now() - interval '7 days'
 )
 
-select date_bin('24 hours', block_time, '2021-11-01') as interval
+select date_bin('1 hours', block_time, '2021-11-01') as interval
 , avg(coalesce(wp.price_alex / wp.price_diko, 1)) as price_alex
 , 1 as unity
 , avg(coalesce(wp.price_stsw / wp.price_diko, 1)) as price_stsw
