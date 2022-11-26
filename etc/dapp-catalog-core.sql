@@ -57,6 +57,10 @@ with categories (link,name,contract_like_arr,source_match) as (VALUES
         ,'SP36YQRWXTH3MHVC5GW32VFHNEF1YK30FXYXCKBDG.%'
         ,'SP12G8K8PHHYQ1P1HGW4WA2BCZ9NGB6NWW7D9H3P.%'
     ],''),
+    ('https://wrapped.com/','Wrapped',ARRAY[''
+        ,'SP3DX3H4FEYZJZ586MFBS25ZW3HZDMEW92260R2PR.Wrapped-%'
+        ,'SP2TZK01NKDC89J6TA56SA47SDF7RTHYEQ79AAB9A.Wrapped-%'
+    ],''),
     ('https://minecitycoins.com/','CityCoins',ARRAY['%miamicoin-core%','%newyorkcitycoin-core%'],''),
     ('https://btc.us/','BNS',ARRAY['SP000000000000000000002Q6VF78.bns'],''),
     ('https://stacking.club/','Stacking/POX',ARRAY['SP000000000000000000002Q6VF78.pox'],'')
