@@ -1,15 +1,4 @@
 with categories (link,name,contract_like_arr,source_match) as (VALUES
-    ('https://gamma.io/collections/bns','Gamma (BNS)',ARRAY['%.bns-%-%'],'SPNWZ5V2TPWGQGVDR6T7B6RQ4XMGZ4PXTEE0VQ0S.gamma-commission'),
-    ('https://gamma.io/','Gamma (Custodial)',ARRAY[''
-        ,'SP1CSHTKVHMMQJ7PRQRFYW6SB4QAW6SR3XY2F81PA.stxnft-auctions%'
-        ,'SPNWZ5V2TPWGQGVDR6T7B6RQ4XMGZ4PXTEE0VQ0S.marketplace%'
-    ],''),
-    ('https://www.tradeport.xyz/','Tradeport (Custodial)',ARRAY[''
-        ,'SP2KAF9RF86PVX3NEE27DFV1CQX0T4WGR41X3S45C.%wrapper%'
-        ,'SP2KAF9RF86PVX3NEE27DFV1CQX0T4WGR41X3S45C.%market%'
-        ,'SP1BX0P4MZ5A3A5JCH0E10YNS170QFR2VQ6TT4NRH.byzantion-market%'
-    ],''),
-    ('https://www.stacksart.com/','Stacks Art (Custodial)',ARRAY['SPJW1XE278YMCEYMXB8ZFGJMH8ZVAAEDP2S2PJYG.stacks-art%'],''),
     ('https://neoswap.party/','NeoSwap',ARRAY['SP3Z3KVR3T0F255SC8170SZY7YB52YPY9H9TNZ9PM.%'],''), -- NOTE: double counts volume
     ('https://www.alexgo.io/','ALEX',ARRAY['SP3K8BC0PPEVCV7NZ6QSRWPQ2JE9E5B6N3PA0KBR9.%'],''),
     ('https://stackswap.org/','Stackswap',ARRAY['SP1Z92MPDQEWZXW36VX71Q25HKF5K2EPCJ304F275.%'],''), -- TODO: exclude %-oracle-%
@@ -86,7 +75,7 @@ select link as "Link", cat.name
 from categories cat
 join smart_contracts sc on (
     sc.contract_id like ANY(cat.contract_like_arr)
-    and position(cat.source_match in sc.source_code) > 0
+    -- and position(cat.source_match in sc.source_code) > 0
 )
 left join transactions tx on (
     contract_call_contract_id = sc.contract_id
