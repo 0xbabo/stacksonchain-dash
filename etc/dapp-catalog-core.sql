@@ -1,15 +1,15 @@
 with categories (link,name,contract_like_arr,source_match) as (VALUES
     ('https://gamma.io/collections/bns','Gamma (BNS)',ARRAY['%.bns-%-%'],'SPNWZ5V2TPWGQGVDR6T7B6RQ4XMGZ4PXTEE0VQ0S.gamma-commission'),
-    ('https://gamma.io/','Gamma (Market)',ARRAY[''
+    ('https://gamma.io/','Gamma (Custodial)',ARRAY[''
         ,'SP1CSHTKVHMMQJ7PRQRFYW6SB4QAW6SR3XY2F81PA.stxnft-auctions%'
         ,'SPNWZ5V2TPWGQGVDR6T7B6RQ4XMGZ4PXTEE0VQ0S.marketplace%'
     ],''),
-    ('https://www.tradeport.xyz/','Byzantion (Market)',ARRAY[''
+    ('https://www.tradeport.xyz/','Tradeport (Custodial)',ARRAY[''
         ,'SP2KAF9RF86PVX3NEE27DFV1CQX0T4WGR41X3S45C.%wrapper%'
         ,'SP2KAF9RF86PVX3NEE27DFV1CQX0T4WGR41X3S45C.%market%'
         ,'SP1BX0P4MZ5A3A5JCH0E10YNS170QFR2VQ6TT4NRH.byzantion-market%'
     ],''),
-    ('https://www.stacksart.com/','Stacks Art (Market)',ARRAY['SPJW1XE278YMCEYMXB8ZFGJMH8ZVAAEDP2S2PJYG.stacks-art%'],''),
+    ('https://www.stacksart.com/','Stacks Art (Custodial)',ARRAY['SPJW1XE278YMCEYMXB8ZFGJMH8ZVAAEDP2S2PJYG.stacks-art%'],''),
     ('https://neoswap.party/','NeoSwap',ARRAY['SP3Z3KVR3T0F255SC8170SZY7YB52YPY9H9TNZ9PM.%'],''), -- NOTE: double counts volume
     ('https://www.alexgo.io/','ALEX',ARRAY['SP3K8BC0PPEVCV7NZ6QSRWPQ2JE9E5B6N3PA0KBR9.%'],''),
     ('https://stackswap.org/','Stackswap',ARRAY['SP1Z92MPDQEWZXW36VX71Q25HKF5K2EPCJ304F275.%'],''), -- TODO: exclude %-oracle-%
@@ -17,7 +17,7 @@ with categories (link,name,contract_like_arr,source_match) as (VALUES
     ('https://www.lydian.xyz/','Lydian',ARRAY['SP3MBWGMCVC9KZ5DTAYFMG1D0AEJCR7NENTM3FTK5.%'],''),
     ('https://www.lnswap.org/','LNSwap',ARRAY['SP2507VNQZC9VBXM7X7KB4SF4QJDJRSWHG4V39WPY.%swap%'],''),
     ('https://www.catamaranswaps.org/','Catamaran Swaps',ARRAY['SP2PABAF9FTAJYNFZH93XENAJ8FVY99RRM50D2JG9.%'],''),
-    ('https://www.mateswap.io/','Cryptomate',ARRAY['SP32NTG209B861QBHF4TH0C86QB0A12TY2F16WHMY.%'],''), -- DEAD
+    ('https://www.mateswap.io/','Cryptomate (Defunct)',ARRAY['SP32NTG209B861QBHF4TH0C86QB0A12TY2F16WHMY.%'],''),
     ('https://sendstx.com/','Send Many',ARRAY['SP3FBR2AGK5H9QBDH3EEN6DF8EK8JY7RX8QJ5SVTE.send-many%'],''),
     ('https://www.megapont.com/','Megapont',ARRAY['SP3D6PV2ACBPEKYJTCMH7HEN02KP87QSP8KTEH335.%'],''),
     ('https://satoshibles.com/','Satoshibles',ARRAY['SP6P4EJF0VG8V0RB3TQQKJBHDQKEF6NVRD1KZE3C.%'],''),
@@ -27,6 +27,7 @@ with categories (link,name,contract_like_arr,source_match) as (VALUES
     ('https://punksarmynft.club/','Punks Army',ARRAY['SP2A665S3H6FVMZSY4VJ17ESXX21CGS0A32984B1H.%'],''),
     ('https://tigerforce.io/','Tiger Force',ARRAY['SP2P6KSAJ4JVV8PFSNKJ9BNG5PEPR4RT71VXZHWBK.%'],''),
     ('https://derupt.io/','Derupt',ARRAY['SP3T3JC6V4S94PPB7WFEK17863HPG3EYP6CJ65E7M.%'],''),
+    ('https://stacksparrots.com/','Stacks Parrots',ARRAY['SP2KAF9RF86PVX3NEE27DFV1CQX0T4WGR41X3S45C.%stacks-parrots%'],''),
     ('https://www.projectindigonft.com/','Project Indigo',ARRAY['SP176ZMV706NZGDDX8VSQRGMB7QN33BBDVZ6BMNHD.%'],''),
     ('https://www.stacksboard.art/','Stacksboard',ARRAY[''
         ,'SPGAKH27HF1T170QET72C727873H911BKNMPF8YB.%'

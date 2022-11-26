@@ -1,6 +1,6 @@
 with categories (link, name, contract_like, comm_like_arr) as (VALUES
-    ('https://www.tradeport.xyz/','Byzantion (Commission)','',
-        ARRAY['%byz%'
+    ('https://www.tradeport.xyz/','Tradeport (Commission)','',
+        ARRAY['%byz%','%tradeport%'
             ,'''SP2KAF9RF86PVX3NEE27DFV1CQX0T4WGR41X3S45C.wasteland-apes-commission'
             ,'''SP3D6PV2ACBPEKYJTCMH7HEN02KP87QSP8KTEH335.commission-megapont'
             ,'''SP3D6PV2ACBPEKYJTCMH7HEN02KP87QSP8KTEH335.commission-robot-factory'
