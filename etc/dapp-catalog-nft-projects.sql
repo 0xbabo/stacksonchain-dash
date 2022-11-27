@@ -54,9 +54,7 @@ from categories cat
 join transactions tx on (
     contract_call_contract_id like ANY(cat.contract_like_arr)
 )
-left join stx_events sx on (
-    sx.tx_id = tx.tx_id
-)
+left join stx_events sx using (tx_id)
 group by 1,2
 order by users_1w desc, users_all desc
 limit 500
