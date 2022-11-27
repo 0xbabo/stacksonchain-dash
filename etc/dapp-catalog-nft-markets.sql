@@ -9,7 +9,8 @@ with cat_cust (link,name,contract_like_arr,source_match) as (VALUES
         ,'SP2KAF9RF86PVX3NEE27DFV1CQX0T4WGR41X3S45C.%market%'
         ,'SP1BX0P4MZ5A3A5JCH0E10YNS170QFR2VQ6TT4NRH.byzantion-market%'
     ],''),
-    ('https://www.stacksart.com/','Stacks Art',ARRAY['SPJW1XE278YMCEYMXB8ZFGJMH8ZVAAEDP2S2PJYG.stacks-art%'],'')
+    ('https://www.stacksart.com/','Stacks Art',ARRAY['SPJW1XE278YMCEYMXB8ZFGJMH8ZVAAEDP2S2PJYG.stacks-art%'],''),
+    ('https://price.btc.us/','price.btc',ARRAY['SP3XYJ8XFZYF7MD86QQ5EF8HBVHHZFFQ9HM6SPJNQ.%'],'')
 )
 
 , cat_nonc (link, name, contract_like, comm_like_arr) as (VALUES
@@ -59,17 +60,41 @@ union all
     group by 1,2,3,4,5,6,7
 )
 
+, contracts as (
+    select cat_link, cat_name
+    , count(*) as contracts
+    from (
+        select distinct on (cat_link,cat_name,contract_id) cat_link, cat_name, contract_id, block_time
+        from events order by cat_link, cat_name, contract_id, block_time desc
+    ) foo
+    group by 1,2
+)
+
+, users as (
+    select cat_link, cat_name
+    -- , count(*) filter (where block_time > now() - interval '1 days') as users_1d
+    , count(*) filter (where block_time > now() - interval '7 days') as users_1w
+    , count(*) as users_all
+    from (
+        select distinct on (cat_link,cat_name,sender_address) cat_link, cat_name, sender_address, block_time
+        from events order by cat_link, cat_name, sender_address, block_time desc
+    ) foo
+    group by 1,2
+)
+
 select cat_link as "Link", cat_name as "Name"
-, count(distinct ev.contract_id) as contracts
--- , count(distinct tx.sender_address) filter (where block_time > now() - interval '1 days') as users_1d
--- , count(distinct tx.tx_id) filter (where block_time > now() - interval '1 days') as txs_1d
-, count(distinct ev.sender_address) filter (where block_time > now() - interval '7 days') as users_1w
-, count(distinct ev.tx_id) filter (where block_time > now() - interval '7 days') as txs_1w
-, 1e-6 * sum(amount) filter (where block_time > now() - interval '7 days') as "Vol,1W (STX)"
-, count(distinct ev.sender_address) as users_all
-, count(distinct ev.tx_id) as txs_all
-, 1e-6 * sum(amount) as "Vol,All (STX)"
+, contracts
+-- , users_1d
+-- , count(*) filter (where block_time > now() - interval '1 days') as txs_1d
+, users_1w
+, count(*) filter (where block_time > now() - interval '7 days') as txs_1w
+, 1e-6 * sum(amount) filter (where block_time > now() - interval '7 days') as "Raw Vol, 1W (STX)"
+, users_all
+, count(*) as txs_all
+, 1e-6 * sum(amount) as "Raw Vol, All (STX)"
 from events ev
-group by 1,2
+join contracts using (cat_link,cat_name)
+join users using (cat_link,cat_name)
+group by 1,2,3, users_1w, users_all
 order by users_1w desc, users_all desc
 limit 100
