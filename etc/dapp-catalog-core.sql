@@ -9,12 +9,6 @@ with categories (link,name,contract_like_arr,source_match) as (VALUES
 ('https://www.mateswap.io/','Cryptomate (Defunct)',ARRAY['SP32NTG209B861QBHF4TH0C86QB0A12TY2F16WHMY.%'],''),
 ('https://sendstx.com/','Send Many',ARRAY['SP3FBR2AGK5H9QBDH3EEN6DF8EK8JY7RX8QJ5SVTE.send-many%'],''),
 ('https://blocksurvey.io/','BlockSurvey',ARRAY['SP3A6FJ92AA0MS2F57DG786TFNG8J785B3F8RSQC9.%'],''),
-('https://pool.xverse.app/','Xverse Pools',ARRAY['SPXVRSEH2BKSXAEJ00F1BY562P45D5ERPSKR4Q33.%'],''),
-('https://boom.money/boomboxes','Boomboxes',ARRAY[''
-    ,'SP497E7RX3233ATBS2AB9G4WTHB63X5PBSP5VGAQ.boombox%'
-    ,'SP1QK1AZ24R132C0D84EEQ8Y2JDHARDR58R72E1ZW.boombox%'
-    ,'SPMS4E9RQ4GCGG68R6D15PKV01TYNCBPYZG1ZMFE.boombox%'
-],''),
 ('https://syvitamining.com/','Syvita Mining Guild',ARRAY[''
     ,'SP196Q1HN49MJTJFRW08RCRP7YSXY28VE72GQWS0P.%'
     ,'SP343J7DNE122AVCSC4HEK4MF871PW470ZSXJ5K66.%'
