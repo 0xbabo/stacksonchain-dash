@@ -3,9 +3,9 @@ select contract_id as "Explorer"
 , split_part(contract_id,'.',2) as contract_name
 , sc.block_height as deploy_blk
 , length(source_code) as src_len
-, length(abi::varchar) as abi_len
+, pg_column_size(abi) as abi_size
 , count(distinct sender_address) as users
-, count(distinct tx_id) as txs
+, count(tx_id) as txs
 from smart_contracts sc
 join transactions tx on (contract_call_contract_id = contract_id)
 where sc.contract_id ilike ANY(ARRAY[
