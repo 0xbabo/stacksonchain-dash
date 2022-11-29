@@ -8,7 +8,7 @@ with categories (link,name,contract_like_arr,source_match) as (VALUES
 ('https://www.catamaranswaps.org/','Catamaran Swaps',ARRAY['SP2PABAF9FTAJYNFZH93XENAJ8FVY99RRM50D2JG9.%'],''),
 ('https://www.mateswap.io/','Cryptomate (Defunct)',ARRAY['SP32NTG209B861QBHF4TH0C86QB0A12TY2F16WHMY.%'],''),
 ('https://sendstx.com/','Send Many',ARRAY['SP3FBR2AGK5H9QBDH3EEN6DF8EK8JY7RX8QJ5SVTE.send-many%'],''),
-('https://blocksurvey.io/','BlockSurvey',ARRAY['SP3A6FJ92AA0MS2F57DG786TFNG8J785B3F8RSQC9.%'],''),
+('https://ballot.gg/','Ballot',ARRAY['SP3A6FJ92AA0MS2F57DG786TFNG8J785B3F8RSQC9.ballot%'],''),
 ('https://syvitamining.com/','Syvita Mining Guild',ARRAY[''
     ,'SP196Q1HN49MJTJFRW08RCRP7YSXY28VE72GQWS0P.%'
     ,'SP343J7DNE122AVCSC4HEK4MF871PW470ZSXJ5K66.%'

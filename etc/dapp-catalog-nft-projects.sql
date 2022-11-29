@@ -1,4 +1,6 @@
 with categories (link,name,contract_like_arr,source_match) as (VALUES
+('https://owl.link/','Owl Link',ARRAY['SP3A6FJ92AA0MS2F57DG786TFNG8J785B3F8RSQC9.owl-link'],''),
+('https://blocksurvey.io/','BlockSurvey',ARRAY['SPNWZ5V2TPWGQGVDR6T7B6RQ4XMGZ4PXTEE0VQ0S.blocksurvey'],''),
 ('https://bitfari.com/','Bitfari',ARRAY['SP213KNHB5QD308TEESY1ZMX1BP8EZDPG4JWD0MEA.%'],''),
 ('https://www.megapont.com/','Megapont',ARRAY['SP3D6PV2ACBPEKYJTCMH7HEN02KP87QSP8KTEH335.%'],''),
 ('https://satoshibles.com/','Satoshibles',ARRAY['SP6P4EJF0VG8V0RB3TQQKJBHDQKEF6NVRD1KZE3C.%'],''),
