@@ -1,14 +1,15 @@
 with categories (link,name,contract_like_arr,source_match) as (VALUES
-('https://neoswap.party/','NeoSwap',ARRAY['SP3Z3KVR3T0F255SC8170SZY7YB52YPY9H9TNZ9PM.%'],''), -- NOTE: double counts volume
+('https://neoswap.party/','NeoSwap',ARRAY['SP3Z3KVR3T0F255SC8170SZY7YB52YPY9H9TNZ9PM.%'],''),
 ('https://www.alexgo.io/','ALEX',ARRAY['SP3K8BC0PPEVCV7NZ6QSRWPQ2JE9E5B6N3PA0KBR9.%'],''),
-('https://stackswap.org/','Stackswap',ARRAY['SP1Z92MPDQEWZXW36VX71Q25HKF5K2EPCJ304F275.%'],''), -- TODO: exclude %-oracle-%
-('https://arkadiko.finance/','Arkadiko',ARRAY['SP2C2YFP12AJZB4MABJBAJ55XECVS7E4PMMZ89YZR.%'],''), -- TODO: exclude %-oracle-%
+('https://stackswap.org/','Stackswap',ARRAY['SP1Z92MPDQEWZXW36VX71Q25HKF5K2EPCJ304F275.%'],''),
+('https://arkadiko.finance/','Arkadiko',ARRAY['SP2C2YFP12AJZB4MABJBAJ55XECVS7E4PMMZ89YZR.%'],''),
 ('https://www.lydian.xyz/','Lydian',ARRAY['SP3MBWGMCVC9KZ5DTAYFMG1D0AEJCR7NENTM3FTK5.%'],''),
 ('https://www.lnswap.org/','LNSwap',ARRAY['SP2507VNQZC9VBXM7X7KB4SF4QJDJRSWHG4V39WPY.%swap%'],''),
 ('https://www.catamaranswaps.org/','Catamaran Swaps',ARRAY['SP2PABAF9FTAJYNFZH93XENAJ8FVY99RRM50D2JG9.%'],''),
 ('https://www.mateswap.io/','Cryptomate (Defunct)',ARRAY['SP32NTG209B861QBHF4TH0C86QB0A12TY2F16WHMY.%'],''),
 ('https://sendstx.com/','Send Many',ARRAY['SP3FBR2AGK5H9QBDH3EEN6DF8EK8JY7RX8QJ5SVTE.send-many%'],''),
-('https://ballot.gg/','Ballot',ARRAY['SP3A6FJ92AA0MS2F57DG786TFNG8J785B3F8RSQC9.ballot%'],''),
+('https://handles.ryder.id/','Ryder ID',ARRAY['SPC0KWNBJ61BDZRPF3W2GHGK3G3GKS8WZ7ND33PS.%'],''),
+('https://ballot.gg/','Ballot',ARRAY['%.ballot-%'],''),
 ('https://syvitamining.com/','Syvita Mining Guild',ARRAY[''
     ,'SP196Q1HN49MJTJFRW08RCRP7YSXY28VE72GQWS0P.%'
     ,'SP343J7DNE122AVCSC4HEK4MF871PW470ZSXJ5K66.%'
@@ -40,6 +41,9 @@ left join transactions tx on (
     contract_call_contract_id like ANY(cat.contract_like_arr)
 )
 left join stx_events sx using (tx_id)
+-- ignore oracle feeds
+where contract_call_contract_id not like '%-oracle-%' -- arkadiko, stackswap
+and contract_call_contract_id != 'SP3K8BC0PPEVCV7NZ6QSRWPQ2JE9E5B6N3PA0KBR9.alex-vault'
 group by 1,2
 order by users_1w desc, users_all desc
 limit 500
