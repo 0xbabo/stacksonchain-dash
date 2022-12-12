@@ -7,9 +7,9 @@ with ft_prop as (
 
 select tx.tx_hash as "Explorer"
 , tx.block_height
--- , tx.block_time
-, split_part(contract_call_contract_id,'.',2) as contract_name
-, contract_call_function_name as function_name
+, tx.block_time
+-- , split_part(contract_call_contract_id,'.',2) as contract_name
+-- , contract_call_function_name as function_name
 , left(sender_address,5)||'...'||right(sender_address,5) as sender_address
 , status
 , right(arg_id.repr,-1)::int as vault_id
@@ -28,6 +28,6 @@ join function_args arg_id on (arg_id.tx_id = tx.tx_id and arg_id.name = 'vault-i
 join function_args arg_ft on (arg_ft.tx_id = tx.tx_id and arg_ft.name = 'ft')
 join ft_prop ftp on (right(arg_ft.repr,-1) = ftp.contract_id)
 where contract_call_contract_id like 'SP2C2YFP12AJZB4MABJBAJ55XECVS7E4PMMZ89YZR.arkadiko-auction%'
-group by 1,2,3,4,5,6,7,8
+group by 1,2,3,4,5,6,7
 order by block_height desc
 limit 100
