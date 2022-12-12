@@ -1,34 +1,45 @@
-with tokens (token_x,base_x,token_y,base_y) as (VALUES
-    (null, 1e6 -- STX
-    ,'SP1Z92MPDQEWZXW36VX71Q25HKF5K2EPCJ304F275.stsw-token-v4a::stsw', 1e6
+with contracts (swap_like,lp_id,token_x,token_y,functions_like) as (VALUES
+('SP1Z92MPDQEWZXW36VX71Q25HKF5K2EPCJ304F275.stackswap-swap-%'
+, 'SP1Z92MPDQEWZXW36VX71Q25HKF5K2EPCJ304F275.liquidity-token-stx-stsw'
+, 'SP1Z92MPDQEWZXW36VX71Q25HKF5K2EPCJ304F275.wstx-token-v4a::null' -- 6D
+, 'SP1Z92MPDQEWZXW36VX71Q25HKF5K2EPCJ304F275.stsw-token-v4a::stsw' -- 6D
+, array['router-swap','swap-%']
 ))
 
-, calls (contract_like,function_like) as (VALUES
-    ('SP1Z92MPDQEWZXW36VX71Q25HKF5K2EPCJ304F275.stackswap-swap-v%','swap-%-for-%'),
-    ('SP1Z92MPDQEWZXW36VX71Q25HKF5K2EPCJ304F275.stackswap-swap-router-%','router-swap')
+, weighted as (
+select b.block_height, b.block_time
+, (balance_x / balance_y :: numeric) as price
+, sum(amount)/1e6 as volume
+from contracts cc
+join dex.swap_balances sb on (
+    contract_id like swap_like
+    and cc.token_x = sb.token_x
+    and cc.token_y = sb.token_y
+)
+join blocks b using (block_height)
+left join transactions tx on (
+    tx.block_height = b.block_height
+    and contract_call_contract_id like swap_like
+    and contract_call_function_name like any(functions_like)
+)
+left join ft_events fx on (
+    fx.block_height = b.block_height and fx.tx_id = tx.tx_id
+    and fx.asset_identifier = cc.token_y
+    -- and tx.sender_address = any(array[fx.sender,fx.recipient])
+    and lp_id = any(array[fx.sender,fx.recipient])
+)
+where 0 < balance_y
+group by 1,2,3
+order by 1
 )
 
-, swaps as (
-    select tx_id, block_height, block_time, sender_address
-    from transactions
-    join calls on (
-        contract_call_contract_id like contract_like
-        and contract_call_function_name like function_like
-    )
-    where status = 1
-    -- and tx_type = 'contract call'
-	-- and block_time > now() - interval '1 month'
-)
-
-select date_bin('24 hours', block_time, '2021-11-01') as interval
-, max(fx.amount / fy.amount * base_y / base_x ) as max_rate
-, min(fx.amount / fy.amount * base_y / base_x ) as min_rate
-, avg(fx.amount / fy.amount * base_y / base_x ) as avg_rate
-, LEAST(0.075 + sum(fy.amount / base_y) / 20e6, 0.3) as lerp_vol
-, log( avg(fx.amount / fy.amount * base_y / base_x) ) * 0.25 + 0.385 as lerp_log
-from swaps tx
-cross join tokens tk
-join ft_events fy on (fy.tx_id = tx.tx_id and tx.sender_address = any(array[fy.sender,fy.recipient])
-    and fy.asset_identifier = tk.token_y)
-join stx_events fx on (fx.tx_id = tx.tx_id and tx.sender_address = any(array[fx.sender,fx.recipient]))
-group by interval
+select date_bin('1 day', wp.block_time, '2021-11-01') as interval
+, max(wp.price) as price_max
+, min(wp.price) as price_min
+, avg(wp.price) as price_avg
+, 0.075 + coalesce(sum(volume),0) / 2e7 as volume
+, log( avg(price) ) * 0.25 + 0.385 as log_lerp
+-- , 2*avg(balance_x)/1e6/1e7 as liquidity_scaled
+from weighted wp
+group by 1
+order by 1
