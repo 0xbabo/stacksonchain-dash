@@ -11,9 +11,9 @@ with tokens as (
 
 , swaps as (
     select * from transactions
-    where status = 1 and tx_type = 'contract call'
+    where status = 1
 	and contract_call_function_name like '%swap%'
-	and contract_call_contract_id like 'SP1Z92MPDQEWZXW36VX71Q25HKF5K2EPCJ304F275.%swap%'
+	and contract_call_contract_id like 'SP1Z92MPDQEWZXW36VX71Q25HKF5K2EPCJ304F275.stackswap-swap%'
     --and (block_time < '2022-03-14T00:00:00Z' or block_time > '2022-03-15T00:00:00Z') -- spurious events?
 	--and fx.amount / fy.amount < 50 -- remove spurious trades
 )
@@ -27,11 +27,11 @@ from swaps txs
 join ft_events fy
     on (txs.tx_id = fy.tx_id and sender_address in (fy.sender, fy.recipient)
         and fy.asset_identifier = 'SP3NE50GEXFG9SZGTT51P40X2CKYSZ5CC4ZTZ7A2G.welshcorgicoin-token::welshcorgicoin')
-join stx_events fx
+join ft_events fx
     on (txs.tx_id = fx.tx_id and sender_address in (fx.sender, fx.recipient)
-        )--and fx.asset_identifier = 'SP1Z92MPDQEWZXW36VX71Q25HKF5K2EPCJ304F275.wstx-token-v4a::null')
+        and fx.asset_identifier = 'SP1Z92MPDQEWZXW36VX71Q25HKF5K2EPCJ304F275.stsw-token-v4a::stsw')
 join tokens tky
     on (tky.contract_id = fy.asset_identifier)
 join tokens tkx
-    on (tkx.contract_id = 'SP1Z92MPDQEWZXW36VX71Q25HKF5K2EPCJ304F275.wstx-token-v4a::null')
+    on (tkx.contract_id = 'SP1Z92MPDQEWZXW36VX71Q25HKF5K2EPCJ304F275.stsw-token-v4a::stsw')
 group by interval

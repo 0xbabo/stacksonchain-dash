@@ -11,9 +11,9 @@ with tokens as (
 
 , swaps as (
     select * from transactions
-    where status = 1 and tx_type = 'contract call'
-	and contract_call_function_name like 'swap-%'
-    and contract_call_contract_id like 'SP2C2YFP12AJZB4MABJBAJ55XECVS7E4PMMZ89YZR.%'
+    where status = 1
+	and contract_call_function_name like '%swap%'
+    -- and contract_call_contract_id like 'SP2C2YFP12AJZB4MABJBAJ55XECVS7E4PMMZ89YZR.%'
 	--and block_time > now() - interval '1 month'
     --and block_time > '2021-11-18T00:00:00Z'
 )
