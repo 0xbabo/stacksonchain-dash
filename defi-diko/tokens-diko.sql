@@ -1,38 +1,73 @@
-with tokens as (
+with const as (
+select 'SP2C2YFP12AJZB4MABJBAJ55XECVS7E4PMMZ89YZR.arkadiko-swap-v2-1' as contract_arkadiko
+    , 'SP2C2YFP12AJZB4MABJBAJ55XECVS7E4PMMZ89YZR.wrapped-stx-token::wstx' as token_wstx -- 6D
+    , 'SP2C2YFP12AJZB4MABJBAJ55XECVS7E4PMMZ89YZR.usda-token::usda' as token_usda -- 6D
+    , 'SP2C2YFP12AJZB4MABJBAJ55XECVS7E4PMMZ89YZR.arkadiko-token::diko' as token_diko -- 6D
+    , 'SP2C2YFP12AJZB4MABJBAJ55XECVS7E4PMMZ89YZR.stdiko-token::stdiko' as token_stdiko -- 6D
+)
+
+, tokens as (
     select contract_id,
         (properties ->> 'name') name,
         (properties ->> 'symbol') symbol,
         (properties ->> 'decimals') :: numeric decimals,
         power(10, (properties ->> 'decimals') :: numeric) base
     from token_properties
-    where contract_id in (
-        'SP2C2YFP12AJZB4MABJBAJ55XECVS7E4PMMZ89YZR.usda-token::usda',
-        'SP2C2YFP12AJZB4MABJBAJ55XECVS7E4PMMZ89YZR.arkadiko-token::diko',
-        'SP2C2YFP12AJZB4MABJBAJ55XECVS7E4PMMZ89YZR.stdiko-token::stdiko',
-        'SP3MBWGMCVC9KZ5DTAYFMG1D0AEJCR7NENTM3FTK5.lydian-token::lydian',
-        'SP3MBWGMCVC9KZ5DTAYFMG1D0AEJCR7NENTM3FTK5.wrapped-lydian-token::wrapped-lydian',
-        'SP3NE50GEXFG9SZGTT51P40X2CKYSZ5CC4ZTZ7A2G.welshcorgicoin-token::welshcorgicoin'
-    )
-), token_events as (
-    select asset_identifier,
-        sum(CASE asset_event_type WHEN 'mint' THEN amount WHEN 'burn' THEN -amount ELSE 0 END) as supply
-        --sum(CASE asset_event_type WHEN 'mint' THEN amount ELSE 0 END) as mint,
-        --sum(CASE asset_event_type WHEN 'burn' THEN amount ELSE 0 END) as burn
-    from ft_events
-    where asset_event_type in ('mint','burn')
-    and asset_identifier in (select contract_id from tokens)
-    group by 1
-), token_prices as (
-    select distinct on (token) token, price
-    from prices.dex_tokens_stx 
-	order by token, ts desc
+    cross join const
+    where contract_id in (token_usda, token_diko, token_stdiko)
 )
-select name, symbol, decimals,
-    to_char(supply / base, 'fm999G999G999G999G999D999') as "Circulating Supply",
-    (supply / base * price) as "Market Cap (STX)",
-    split_part(contract_id,'::',1) as "Explorer"
-    -- TODO: liquidity, volume
+
+, supply as (
+    select asset_identifier, sum(total) as supply from (
+        select asset_identifier, sum(amount) as total
+        from ft_events
+        cross join const
+        right join tokens on (contract_id = asset_identifier)
+        where (sender is null)
+        group by 1
+    union all
+        select asset_identifier, sum(-amount) as total
+        from ft_events
+        cross join const
+        right join tokens on (contract_id = asset_identifier)
+        where (recipient is null)
+        group by 1
+    ) sub
+    group by 1
+)
+
+, weighted as (
+-- average price & liquidity over last N blocks
+select null as liq_usda
+, avg( stx_usda.balance_x / stx_usda.balance_y * diko_usda.balance_y / 1e6 ) as liq_diko
+, avg( stx_usda.balance_x / stx_usda.balance_y :: numeric ) as price_usda
+, avg( stx_usda.balance_x / stx_usda.balance_y * diko_usda.balance_y / diko_usda.balance_x :: numeric ) as price_diko
+-- , sum(amount)/1e6 as volume
+from blocks b
+cross join last_block b0
+cross join const
+join dex.swap_balances stx_usda on (stx_usda.token_x = token_wstx and stx_usda.token_y = token_usda
+    and stx_usda.block_height = b.block_height)
+left join dex.swap_balances diko_usda on (diko_usda.token_x = token_diko and diko_usda.token_y = token_usda
+    and diko_usda.block_height = b.block_height)
+where 0 < (stx_usda.balance_y)
+and b.block_height > b0.block_height - 10
+)
+
+, liquidity as (
+    select token_usda as token, price_usda as price, null as liquidity
+    from weighted cross join const
+union all
+    select token_diko as token, price_diko as price, liq_diko as liquidity
+    from weighted cross join const
+)
+
+select split_part(contract_id,'::',1) as "Explorer"
+, name, symbol, decimals
+, to_char(supply / base, 'fm999G999G999G999G999D999') as "Circulating Supply"
+, (supply / base * price) as "Market Cap (STX)"
+, liquidity as "Liquidity (STX)"
 from tokens
-left join token_prices on (contract_id = token)
-left join token_events on (contract_id = asset_identifier)
+left join liquidity on (contract_id = token)
+left join supply on (contract_id = asset_identifier)
 order by "Market Cap (STX)" desc nulls last
