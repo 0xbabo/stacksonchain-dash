@@ -1,43 +1,35 @@
-
-with contracts (swap_like,token_x,token_y,functions_like) as (VALUES
-('SP2C2YFP12AJZB4MABJBAJ55XECVS7E4PMMZ89YZR.arkadiko-swap-%'
-,'SP2C2YFP12AJZB4MABJBAJ55XECVS7E4PMMZ89YZR.wrapped-stx-token::wstx'
-,'SP2C2YFP12AJZB4MABJBAJ55XECVS7E4PMMZ89YZR.arkadiko-token::diko'
-, array['%swap%']
-))
+with const as (
+select 'SP2C2YFP12AJZB4MABJBAJ55XECVS7E4PMMZ89YZR.arkadiko-swap-%' as contract_arkadiko
+    , 'SP2C2YFP12AJZB4MABJBAJ55XECVS7E4PMMZ89YZR.wrapped-stx-token::wstx' as token_wstx -- 6D
+    , 'SP2C2YFP12AJZB4MABJBAJ55XECVS7E4PMMZ89YZR.usda-token::usda' as token_usda -- 6D
+    , 'SP2C2YFP12AJZB4MABJBAJ55XECVS7E4PMMZ89YZR.arkadiko-token::diko' as token_diko -- 6D
+)
 
 , weighted as (
 select b.block_height, b.block_time
-, (balance_x / balance_y :: numeric) as price
-, sum(amount)/1e6 as volume
-from contracts cc
-join dex.swap_balances sb on (
-    contract_id like swap_like
-    and cc.token_x = sb.token_x
-    and cc.token_y = sb.token_y
-)
-join blocks b using (block_height)
-left join transactions tx on (
-    tx.block_height = b.block_height
-    and contract_call_contract_id like swap_like
-    and contract_call_function_name like any(functions_like)
-)
-left join ft_events fx on (
-    fx.block_height = b.block_height and fx.tx_id = tx.tx_id
-    and fx.asset_identifier = cc.token_y
-    -- and tx.sender_address = any(array[fx.sender,fx.recipient])
-    and contract_call_contract_id = any(array[fx.sender,fx.recipient])
-)
-where 0 < balance_y
-group by 1,2,3
+, ( diko_stx.balance_x/1e6 + diko_usda.balance_y/1e6 * stx_usda.balance_x / stx_usda.balance_y ) 
+    / ( diko_stx.balance_y/1e6 + diko_usda.balance_x/1e6 ) as price
+-- , sum(amount)/1e6 as volume
+from blocks b
+cross join const
+join dex.swap_balances diko_stx on (diko_stx.token_x = token_wstx and diko_stx.token_y = token_diko
+    and diko_stx.block_height = b.block_height)
+left join dex.swap_balances stx_usda on (stx_usda.token_x = token_wstx and stx_usda.token_y = token_usda
+    and stx_usda.block_height = b.block_height)
+left join dex.swap_balances diko_usda on (diko_usda.token_x = token_diko and diko_usda.token_y = token_usda
+    and diko_usda.block_height = b.block_height)
+-- left join ft_events fx
+where 0 < (stx_usda.balance_y)
+-- group by 1,2,3
 order by 1
 )
 
-select date_bin('1 day', wp.block_time, '2021-10-01') as interval
+select date_bin('1 day', wp.block_time, '2021-10-01')::date as interval
 , max(wp.price) as price_max
 , min(wp.price) as price_min
 , avg(wp.price) as price_avg
-, LEAST(-1.0 + coalesce(sum(volume),0) / 1e6, 1) as lerp_vol
+-- , LEAST(-1.0 + coalesce(sum(volume),0) / 1e6, 1) as lerp_vol
+, 0 as lerp_vol
 , 0 as zero
 , log(avg(price)) * 1.5 + 2.5 as log_rate
 from weighted wp
