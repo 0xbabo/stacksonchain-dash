@@ -1,40 +1,49 @@
-with const as (
+with contracts (swap_like,token_x,token_y,functions_like) as (VALUES
+('SP3K8BC0PPEVCV7NZ6QSRWPQ2JE9E5B6N3PA0KBR9.%'
+,'SP3K8BC0PPEVCV7NZ6QSRWPQ2JE9E5B6N3PA0KBR9.age000-governance-token::alex' -- 8D
+,'SP3K8BC0PPEVCV7NZ6QSRWPQ2JE9E5B6N3PA0KBR9.auto-alex::auto-alex' -- 8D
+, array['%swap%']
+))
+
+, const as (
     select '2022-04-26T00:00:00Z'::timestamp as start_time
 )
 
-, tokens as (
-    select contract, contract_id, power(10,(properties->>'decimals')::numeric) as factor
-    from token_properties
-    where contract_id in (
-        'SP3K8BC0PPEVCV7NZ6QSRWPQ2JE9E5B6N3PA0KBR9.age000-governance-token::alex',
-        'SP3K8BC0PPEVCV7NZ6QSRWPQ2JE9E5B6N3PA0KBR9.auto-alex::auto-alex'
-    )
+, weighted as (
+select b.block_height, b.block_time
+, (DATE_PART('day', b.block_time - start_time) + DATE_PART('hour', b.block_time - start_time) / 24.0) as datediff_h
+, (balance_x / balance_y :: numeric) as price
+, sum(amount)/1e8 as volume -- double counting in some instances
+from contracts cc
+join dex.swap_balances sb on (
+    contract_id like swap_like
+    and cc.token_x = sb.token_x
+    and cc.token_y = sb.token_y
+)
+join blocks b using (block_height)
+left join transactions tx on (
+    tx.block_height = b.block_height
+    and contract_call_contract_id like swap_like
+    and contract_call_function_name like any(functions_like)
+)
+left join ft_events fx on (
+    fx.block_height = b.block_height and fx.tx_id = tx.tx_id
+    and fx.asset_identifier = cc.token_y
+    and sender_address = any(array[fx.sender,fx.recipient])
+)
+cross join const
+where 0 < balance_y
+group by 1,2,3,4
+order by 1
 )
 
-, swaps as (
-    select *,
-        (DATE_PART('day', block_time - start_time) + DATE_PART('hour', block_time - start_time) / 24.0)
-            as datediff_h
-    from transactions cross join const
-    where status = 1 and tx_type = 'contract call'
-	and contract_call_function_name = 'swap-helper'
-    and contract_call_contract_id like 'SP3K8BC0PPEVCV7NZ6QSRWPQ2JE9E5B6N3PA0KBR9.%'
-	--and block_time > now() - interval '1 month'
-)
-
-select date_bin('12 hours', block_time, '2022-01-01') as interval
-, max(fx.amount / fy.amount * tky.factor / tkx.factor) as max_rate
-, min(fx.amount / fy.amount * tky.factor / tkx.factor) as min_rate
-, avg(fx.amount / fy.amount * tky.factor / tkx.factor) as avg_rate
-, LEAST(0.75 + sum(fy.amount / tky.factor) / 7e6, 1.4) as lerp_vol
+select date_bin('12 hours', wp.block_time, '2022-01-01') as interval
+, max(wp.price) as price_max
+, min(wp.price) as price_min
+, avg(wp.price) as price_avg
+, LEAST(0.75 + sum(volume) / 7e6, 1.4) as lerp_vol
 , (power(1.04, power(avg(datediff_h), 0.76) / 6.0)) as projected_rate
-from swaps txs
-join ft_events fy
-    on (txs.tx_id = fy.tx_id and sender_address in (fy.sender, fy.recipient))
-join ft_events fx
-    on (txs.tx_id = fx.tx_id and sender_address in (fx.sender, fx.recipient))
-join tokens tky on (tky.contract_id = fy.asset_identifier)
-join tokens tkx on (tkx.contract_id = fx.asset_identifier)
-where fy.asset_identifier = 'SP3K8BC0PPEVCV7NZ6QSRWPQ2JE9E5B6N3PA0KBR9.auto-alex::auto-alex'
-and fx.asset_identifier = 'SP3K8BC0PPEVCV7NZ6QSRWPQ2JE9E5B6N3PA0KBR9.age000-governance-token::alex'
-group by interval
+from weighted wp
+group by 1
+order by 1
+ 

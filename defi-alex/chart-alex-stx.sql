@@ -1,37 +1,43 @@
-with tokens as (
-    select contract, contract_id, power(10,(properties->>'decimals')::numeric) as factor
-    from token_properties
-    where contract_id in (
-        'SP2C2YFP12AJZB4MABJBAJ55XECVS7E4PMMZ89YZR.wrapped-stx-token::wstx',
-        'SP3K8BC0PPEVCV7NZ6QSRWPQ2JE9E5B6N3PA0KBR9.age000-governance-token::alex',
-        'SP3K8BC0PPEVCV7NZ6QSRWPQ2JE9E5B6N3PA0KBR9.auto-alex::auto-alex'
-    )
+with contracts (swap_like,token_x,token_y,functions_like) as (VALUES
+('SP3K8BC0PPEVCV7NZ6QSRWPQ2JE9E5B6N3PA0KBR9.%'
+,'SP3K8BC0PPEVCV7NZ6QSRWPQ2JE9E5B6N3PA0KBR9.token-wstx::wstx' -- 8D
+,'SP3K8BC0PPEVCV7NZ6QSRWPQ2JE9E5B6N3PA0KBR9.age000-governance-token::alex' -- 8D
+, array['%swap%']
+))
+
+, weighted as (
+select b.block_height, b.block_time
+, (balance_x / balance_y :: numeric) as price
+, sum(amount)/1e8 as volume -- double counting in some instances
+from contracts cc
+join dex.swap_balances sb on (
+    contract_id like swap_like
+    and cc.token_x = sb.token_x
+    and cc.token_y = sb.token_y
+)
+join blocks b using (block_height)
+left join transactions tx on (
+    tx.block_height = b.block_height
+    and contract_call_contract_id like swap_like
+    and contract_call_function_name like any(functions_like)
+)
+left join ft_events fx on (
+    fx.block_height = b.block_height and fx.tx_id = tx.tx_id
+    and fx.asset_identifier = cc.token_y
+    and sender_address = any(array[fx.sender,fx.recipient])
+)
+where 0 < balance_y
+group by 1,2,3
+order by 1
 )
 
-, swaps as (
-    select * from transactions
-    where status = 1 and tx_type = 'contract call'
-	and contract_call_function_name = 'swap-helper'
-    and contract_call_contract_id like 'SP3K8BC0PPEVCV7NZ6QSRWPQ2JE9E5B6N3PA0KBR9.%'
-	--and block_time > now() - interval '1 month'
-)
-
-select date_bin('24 hours', block_time, '2022-01-01') as interval
-, max(fx.amount / fy.amount * tky.factor / tkx.factor) as max_rate
-, min(fx.amount / fy.amount * tky.factor / tkx.factor) as min_rate
-, avg(fx.amount / fy.amount * tky.factor / tkx.factor) as avg_rate
-, LEAST(0.0 + sum(fy.amount / tky.factor) / 3e7, 2.0) as lerp_vol
+select date_bin('1 day', wp.block_time, '2021-10-01')::date as interval
+, max(wp.price) as price_max
+, min(wp.price) as price_min
+, avg(wp.price) as price_avg
+, LEAST(0.0 + sum(volume)/3e7, 2.0) as lerp_vol
 , 0 as zero
-, log( avg(fx.amount / fy.amount * tky.factor / tkx.factor) ) * 1.0 + 1.5 as lerp_log
-from swaps txs
-join ft_events fy
-    on (txs.tx_id = fy.tx_id and sender_address in (fy.sender, fy.recipient))
-join stx_events fx
-    on (txs.tx_id = fx.tx_id and sender_address in (fx.sender, fx.recipient))
-join tokens tky
-    on (tky.contract_id = fy.asset_identifier)
-join tokens tkx
-    on (tkx.contract_id like '%::wstx')
-where fy.asset_identifier = 'SP3K8BC0PPEVCV7NZ6QSRWPQ2JE9E5B6N3PA0KBR9.age000-governance-token::alex'
-and fx.amount / fy.amount * tky.factor / tkx.factor < 2.0 -- remove spurious events
-group by interval
+, log( avg(price) ) * 1.0 + 1.5 as lerp_log
+from weighted wp
+group by 1
+order by 1

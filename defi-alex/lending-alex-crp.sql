@@ -43,7 +43,7 @@ with const as ( select
 )
 
 , deltas as (
-    select date_bin('6 hours', block_time, date_trunc('day',block_time)::timestamp) as interval,
+    select date_bin('12 hours', block_time, '2022-06-01') as interval,
     --select block_time as interval,
         sum( (CASE asset_identifier
                 WHEN 'SP3K8BC0PPEVCV7NZ6QSRWPQ2JE9E5B6N3PA0KBR9.age000-governance-token::alex'
