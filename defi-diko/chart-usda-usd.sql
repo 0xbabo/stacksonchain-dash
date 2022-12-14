@@ -7,15 +7,17 @@ select 'SP2C2YFP12AJZB4MABJBAJ55XECVS7E4PMMZ89YZR.wrapped-stx-token::wstx' as to
 , weighted as (
 select b.block_height, block_time
 , p1.balance_x / p1.balance_y :: float as price
+-- , sum(amount)/1e6 as volume
 from blocks b
 cross join const
 join dex.swap_balances p1 on ( p1.block_height = b.block_height
     and p1.token_x = token_wstx and p1.token_y = token_usda )
+-- left join ft_events fx
 where 0 < p1.balance_y
 order by 1
 )
 
-select date_bin('1 day', ts, '2021-11-01') as interval
+select date_bin('1 day', ts, '2021-11-01')::date as interval
 , max(su.value * wp.price) as price_max
 , min(su.value * wp.price) as price_min
 , avg(su.value * wp.price) as price_avg

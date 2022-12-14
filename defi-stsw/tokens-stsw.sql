@@ -54,6 +54,7 @@ left join dex.swap_balances lbtc_stx on (lbtc_stx.token_x = token_wstx and lbtc_
     and lbtc_stx.block_height = b.block_height)
 left join dex.swap_balances lbtc_stsw on (lbtc_stsw.token_x = token_stsw and lbtc_stsw.token_y = token_lbtc
     and lbtc_stsw.block_height = b.block_height)
+-- left join ft_events fx
 where 0 < (lbtc_stx.balance_y + lbtc_stsw.balance_y)
 and b.block_height > b0.block_height - 10
 )

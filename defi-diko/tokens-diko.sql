@@ -39,9 +39,9 @@ select 'SP2C2YFP12AJZB4MABJBAJ55XECVS7E4PMMZ89YZR.arkadiko-swap-v2-1' as contrac
 , weighted as (
 -- average price & liquidity over last N blocks
 select null as liq_usda
-, avg( stx_usda.balance_x / stx_usda.balance_y * diko_usda.balance_y / 1e6 ) as liq_diko
+, avg( stx_usda.balance_x / stx_usda.balance_y :: numeric * diko_usda.balance_y / 1e6 ) as liq_diko
 , avg( stx_usda.balance_x / stx_usda.balance_y :: numeric ) as price_usda
-, avg( stx_usda.balance_x / stx_usda.balance_y * diko_usda.balance_y / diko_usda.balance_x :: numeric ) as price_diko
+, avg( stx_usda.balance_x / stx_usda.balance_y :: numeric * diko_usda.balance_y / diko_usda.balance_x ) as price_diko
 -- , sum(amount)/1e6 as volume
 from blocks b
 cross join last_block b0
@@ -50,6 +50,7 @@ join dex.swap_balances stx_usda on (stx_usda.token_x = token_wstx and stx_usda.t
     and stx_usda.block_height = b.block_height)
 left join dex.swap_balances diko_usda on (diko_usda.token_x = token_diko and diko_usda.token_y = token_usda
     and diko_usda.block_height = b.block_height)
+-- left join ft_events fx
 where 0 < (stx_usda.balance_y)
 and b.block_height > b0.block_height - 10
 )

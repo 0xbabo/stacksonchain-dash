@@ -17,10 +17,11 @@ left join dex.swap_balances lbtc_stx on (lbtc_stx.token_x = token_wstx and lbtc_
     and lbtc_stx.block_height = b.block_height)
 left join dex.swap_balances lbtc_stsw on (lbtc_stsw.token_x = token_stsw and lbtc_stsw.token_y = token_lbtc
     and lbtc_stsw.block_height = b.block_height)
+-- left join ft_events fx
 where 0 < (lbtc_stx.balance_y + lbtc_stsw.balance_y)
 )
 
-select date_bin('1 day', block_time, '2022-01-01') as interval
+select date_bin('1 day', block_time, '2022-01-01')::date as interval
 , max(wp.price) as price_max
 , min(wp.price) as price_min
 , avg(wp.price) as price_avg

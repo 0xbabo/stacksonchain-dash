@@ -25,7 +25,6 @@ left join transactions tx on (
 left join ft_events fx on (
     fx.block_height = b.block_height and fx.tx_id = tx.tx_id
     and fx.asset_identifier = cc.token_y
-    -- and tx.sender_address = any(array[fx.sender,fx.recipient])
     and lp_id = any(array[fx.sender,fx.recipient])
 )
 where 0 < balance_y
@@ -33,7 +32,7 @@ group by 1,2,3
 order by 1
 )
 
-select date_bin('1 day', wp.block_time, '2021-11-01') as interval
+select date_bin('1 day', wp.block_time, '2021-11-01')::date as interval
 , max(wp.price) as price_max
 , min(wp.price) as price_min
 , avg(wp.price) as price_avg
