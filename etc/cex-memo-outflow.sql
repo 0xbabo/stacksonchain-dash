@@ -1,24 +1,14 @@
-with stx_outflow as (
-    select sender_address as sender
-    , token_transfer_recipient_address as recipient
-    , count(*) as num_txs
-    , sum(token_transfer_amount)/1e6 as volume
-    from transactions
-    where tx_type = 'token transfer'
-    group by 1, 2
-    -- order by 3
-)
-
-select sender as address
-, sum(volume) as "Volume (STX)"
-, sum(num_txs) as num_txs
-, count(*) as num_users
-, total as "Balance (STX)"
-from stx_outflow
-join accounts on (account = sender)
-group by 1, 5
-having count(*) >= 64
-    and sum(volume) >= 1e6
-    -- and total >= 100e3
-order by 2 desc
+select sender_address as address
+, bal.total as "Balance (STX)"
+, count(*) as xfers
+, count(distinct token_transfer_recipient_address) as users
+, count(distinct token_transfer_memo) - 1 as memos
+, sum(token_transfer_amount)/1e6 as "Volume (STX)"
+from transactions tx
+join stxop.accounts bal on (account = sender_address)
+-- where tx_type = 'token transfer'
+where type_id = 0
+group by 1,2
+having count(*) >= 100 and count(distinct token_transfer_recipient_address) >= 10
+order by "Volume (STX)" desc
 limit 100
