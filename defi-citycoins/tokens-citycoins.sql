@@ -1,42 +1,42 @@
 with const as (
 select 'SP1Z92MPDQEWZXW36VX71Q25HKF5K2EPCJ304F275.wstx-token-v4a::null' as token_wstx_stsw -- 6D
-    ,'SP3K8BC0PPEVCV7NZ6QSRWPQ2JE9E5B6N3PA0KBR9.token-wstx::wstx' as token_wstx_alex -- 8D
-    ,'SP3K8BC0PPEVCV7NZ6QSRWPQ2JE9E5B6N3PA0KBR9.token-wmia::wmia' as token_wmia_alex -- 8D?
-    ,'SP3K8BC0PPEVCV7NZ6QSRWPQ2JE9E5B6N3PA0KBR9.token-wnycc::wnycc' as token_wnyc_alex -- 8D?
-    ,'SPSCWDV3RKV5ZRN1FQD84YE1NQFEDJ9R1F4DYQ11.newyorkcitycoin-token-v2::newyorkcitycoin' as token_nyc_v2
-    ,'SP1H1733V5MZ3SZ9XRW9FKYGEZT0JDGEB8Y634C7R.miamicoin-token-v2::miamicoin' as token_mia_v2
-    ,'SP2H8PY27SEZ03MWRKS5XABZYQN17ETGQS3527SA5.newyorkcitycoin-token::newyorkcitycoin' as token_nyc_v1
-    ,'SP466FNC0P7JWTNM2R9T199QRZN1MYEDTAR0KP27.miamicoin-token::miamicoin' as token_mia_v1
+, 'SP3K8BC0PPEVCV7NZ6QSRWPQ2JE9E5B6N3PA0KBR9.token-wstx::wstx' as token_wstx_alex -- 8D
+, 'SP3K8BC0PPEVCV7NZ6QSRWPQ2JE9E5B6N3PA0KBR9.token-wmia::wmia' as token_wmia_alex -- 8D?
+, 'SP3K8BC0PPEVCV7NZ6QSRWPQ2JE9E5B6N3PA0KBR9.token-wnycc::wnycc' as token_wnyc_alex -- 8D?
+, 'SPSCWDV3RKV5ZRN1FQD84YE1NQFEDJ9R1F4DYQ11.newyorkcitycoin-token-v2::newyorkcitycoin' as token_nyc_v2
+, 'SP1H1733V5MZ3SZ9XRW9FKYGEZT0JDGEB8Y634C7R.miamicoin-token-v2::miamicoin' as token_mia_v2
+, 'SP2H8PY27SEZ03MWRKS5XABZYQN17ETGQS3527SA5.newyorkcitycoin-token::newyorkcitycoin' as token_nyc_v1
+, 'SP466FNC0P7JWTNM2R9T199QRZN1MYEDTAR0KP27.miamicoin-token::miamicoin' as token_mia_v1
 )
 
 , tokens as (
-    select contract_id,
-        (properties ->> 'name') name,
-        (properties ->> 'symbol') symbol,
-        (properties ->> 'decimals') :: numeric decimals,
-        power(10, (properties ->> 'decimals') :: numeric) base
-    from token_properties
-    cross join const
-    where contract_id in (token_mia_v1,token_nyc_v1,token_mia_v2,token_nyc_v2)
+select contract_id,
+    (properties ->> 'name') name,
+    (properties ->> 'symbol') symbol,
+    (properties ->> 'decimals') :: numeric decimals,
+    power(10, (properties ->> 'decimals') :: numeric) base
+from token_properties
+cross join const
+where contract_id in (token_mia_v1,token_nyc_v1,token_mia_v2,token_nyc_v2)
 )
 
 , supply as (
-    select asset_identifier, sum(total) as supply from (
-        select asset_identifier, sum(amount) as total
-        from ft_events
-        cross join const
-        right join tokens on (contract_id = asset_identifier)
-        where (sender is null)
-        group by 1
-    union all
-        select asset_identifier, sum(-amount) as total
-        from ft_events
-        cross join const
-        right join tokens on (contract_id = asset_identifier)
-        where (recipient is null)
-        group by 1
-    ) sub
+select asset_identifier, sum(total) as supply from (
+    select asset_identifier, sum(amount) as total
+    from ft_events
+    cross join const
+    right join tokens on (contract_id = asset_identifier)
+    where (sender is null)
     group by 1
+union all
+    select asset_identifier, sum(-amount) as total
+    from ft_events
+    cross join const
+    right join tokens on (contract_id = asset_identifier)
+    where (recipient is null)
+    group by 1
+) sub
+group by 1
 )
 
 , weighted as (
