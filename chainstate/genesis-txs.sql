@@ -1,6 +1,6 @@
 select tx_hash as "Explorer"
 , b.block_time, burn_block_height, block_height, tx_index, tx_type, type_id
-, encode(coinbase_payload,'escape') as coinbase_payload
+, replace(encode(coinbase_payload,'escape'), E'\\000', '') as coinbase_payload
 , CASE WHEN length(smart_contract_source_code) > 200 THEN '(hidden due to size)'
     ELSE smart_contract_source_code
     END as smart_contract_source_code
