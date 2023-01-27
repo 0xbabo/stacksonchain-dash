@@ -14,6 +14,7 @@ join base b2 on (b1.block_height = b2.block_height-1)
 
 select date_bin('3.5 days', block_time, '2021-01-03')::date as block_time
 -- , PERCENTILE_CONT(1.00) within group (order by block_duration) as "Max"
+-- , 60 as "Hour"
 , PERCENTILE_CONT(0.90) within group (order by block_duration) as "90pctl"
 , PERCENTILE_CONT(0.75) within group (order by block_duration) as "Q3"
 , avg(block_duration) as "Mean"
