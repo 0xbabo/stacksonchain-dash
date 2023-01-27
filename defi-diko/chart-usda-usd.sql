@@ -18,13 +18,14 @@ order by 1
 )
 
 select date_bin('1 day', ts, '2021-11-01')::date as interval
-, max(su.value * wp.price) as price_max
-, min(su.value * wp.price) as price_min
-, avg(su.value * wp.price) as price_avg
+, max(stx.close * wp.price) as price_max
+, min(stx.close * wp.price) as price_min
+, avg(stx.close * wp.price) as price_avg
 , avg(1/wp.price) as stx_usda
 , 1 as unity
-, avg(su.value) as stx_usd
+, avg(stx.close) as stx_usd
 from weighted wp
-join ts.stx_usd_1h su on (ts = date_trunc('hour',block_time))
+left join prices.stx_usd stx on (timeframe = 'DAY' and ts::date = block_time::date)
+where ts is not null
 group by 1
 order by 1

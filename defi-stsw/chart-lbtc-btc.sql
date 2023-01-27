@@ -22,12 +22,13 @@ where 0 < (lbtc_stx.balance_y + lbtc_stsw.balance_y)
 )
 
 select date_bin('1 day', block_time, '2022-01-01')::date as interval
-, max(wp.price * stx_usd.value / btc_usd.value) as price_max
-, min(wp.price * stx_usd.value / btc_usd.value) as price_min
-, avg(wp.price * stx_usd.value / btc_usd.value) as price_avg
+, max(wp.price * stx.close / btc.close) as price_max
+, min(wp.price * stx.close / btc.close) as price_min
+, avg(wp.price * stx.close / btc.close) as price_avg
 , 0 as chart_floor
 from weighted wp
-join ts.stx_usd_1h stx_usd on (stx_usd.ts = date_trunc('hour',block_time))
-join ts.btc_usd_1h btc_usd on (btc_usd.ts = date_trunc('hour',block_time))
+left join prices.stx_usd stx on (stx.timeframe = 'DAY' and stx.ts::date = block_time::date)
+left join prices.btc_usd btc on (btc.timeframe = 'DAY' and btc.ts::date = block_time::date)
+-- where ts is not null
 group by 1
 order by 1
