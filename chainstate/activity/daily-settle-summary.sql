@@ -48,10 +48,14 @@ group by 1
 )
 
 select extract('year' from mo.ts) as year
-, round(yr.value_btc, 4)::text as "value(BTC), year"
-, round(mo.value_btc, 4)::text as "value(BTC), eoy"
-, round((mo.value_btc / yr.value_btc - 1) * 100, 1)::text "Δvalue(BTC), eoy/yr (%)"
-, round((yr.value_btc / lag(yr.value_btc) over (order by yr.ts) - 1) * 100, 1)::text as "Δvalue(BTC), yr/yr (%)"
+, to_char(yr.value_stx, '999G999G999G999G999') as "E(val_stx), year"
+, to_char(mo.value_stx, '999G999G999G999G999') as "E(val_stx), eoy"
+, to_char((yr.value_stx / lag(yr.value_stx) over (order by yr.ts) - 1) * 100, '999G999G999D9') as "ΔE(val_stx), yr/yr (%)"
+, to_char((mo.value_stx / yr.value_stx - 1) * 100, '999G999G999D99') "ΔE(val_stx), eoy/yr (%)"
+, to_char(yr.value_usd, '999G999G999G999G999') as "E(val_usd), year"
+, to_char(mo.value_usd, '999G999G999G999G999') as "E(val_usd), eoy"
+, to_char((yr.value_usd / lag(yr.value_usd) over (order by yr.ts) - 1) * 100, '999G999G999D9') as "ΔE(val_usd), yr/yr (%)"
+, to_char((mo.value_usd / yr.value_usd - 1) * 100, '999G999G999D9') "ΔE(val_usd), eoy/yr (%)"
 from annual yr
 left join monthly mo on (date_trunc('year',mo.ts) = yr.ts)
 where extract('month' from mo.ts) = 12

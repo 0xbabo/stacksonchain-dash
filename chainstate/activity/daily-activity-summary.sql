@@ -32,14 +32,14 @@ group by 1
 )
 
 select extract('year' from mo.ts) as year
-, round(yr.txs, 1)::text as txs_yr
-, round(mo.txs, 1)::text as txs_eoy
-, round((mo.txs / yr.txs - 1) * 100, 1)::text "Δtxs, eoy/yr (%)"
-, round((yr.txs / lag(yr.txs) over (order by yr.ts) - 1) * 100, 1)::text as "Δtxs, yr/yr (%)"
-, round(yr.users, 1)::text as users_yr
-, round(mo.users, 1)::text as users_eoy
-, round((mo.users / yr.users - 1) * 100, 1)::text as "Δusers, eoy/yr (%)"
-, round((yr.users / lag(yr.users) over (order by yr.ts) - 1) * 100, 1)::text as "Δusers, yr/yr (%)"
+, to_char(yr.txs, '999G999G999G999G999D9') as "E(txs), year"
+, to_char(mo.txs, '999G999G999G999G999D9') as "E(txs), eoy"
+, to_char((yr.txs / lag(yr.txs) over (order by yr.ts) - 1) * 100, '999G999G999D9') as "ΔE(txs), yr/yr (%)"
+, to_char((mo.txs / yr.txs - 1) * 100, '999G999G999D9') "ΔE(txs), eoy/yr (%)"
+, to_char(yr.users, '999G999G999G999G999D9') as "E(users), year"
+, to_char(mo.users, '999G999G999G999G999D9') as "E(users), eoy"
+, to_char((yr.users / lag(yr.users) over (order by yr.ts) - 1) * 100, '999G999G999D9') as "ΔE(users), yr/yr (%)"
+, to_char((mo.users / yr.users - 1) * 100, '999G999G999D9') "ΔE(users), eoy/yr (%)"
 from annual yr
 left join monthly mo on (date_trunc('year',mo.ts) = yr.ts)
 where extract('month' from mo.ts) = 12
