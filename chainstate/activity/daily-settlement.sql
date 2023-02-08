@@ -38,6 +38,9 @@ select date_bin('2 days', d.ts, '2021-01-03')::date as ts
 , avg(d.value) as "Amount (STX)"
 , avg(d.value * p.stx_avg) as "Amount (USD value)"
 , avg(d.value * p.stx_avg / p.btc_avg) * 1e4 as "Amount (BTC value x1e4)"
+, GREATEST(0, 3e7 * ( -4.5 + log(avg(d.value)) )) as "Lerp Log Fees (STX)"
+, GREATEST(0, 3e7 * ( -4.5 + log(avg(d.value * p.stx_avg)) )) as "Lerp Log Fees (USD value)"
+, GREATEST(0, 3e7 * ( -4.5 + log(avg(d.value * p.stx_avg / p.btc_avg) * 1e4) )) as "Lerp Log Fees (BTC value x1e4)"
 from daily_running d
 left join daily_price p using (ts)
 group by 1

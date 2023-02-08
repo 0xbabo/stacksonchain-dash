@@ -24,5 +24,8 @@ from daily
 select date_bin('2 days', ts, '2021-01-03')::date as ts
 , avg(txs) as txs
 , avg(users) as users
+, null as " "
+, GREATEST(0, 5e3 * ( -1.3 + log(avg(txs)) )) as "Lerp Log txs"
+, GREATEST(0, 5e3 * ( -1.3 + log(avg(users)) )) as "Lerp Log users"
 from daily_running
 group by 1
