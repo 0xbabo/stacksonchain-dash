@@ -1,4 +1,8 @@
-with anchor as (
+with const as (
+select 0 as min_burn_block
+)
+
+, anchor as (
 select (data ->> 'block_height')::int as burn_block_height
 , (data #>> '{inputs,0,prev_out,addr}') as sender_address
 , (data ->> 'fee')::numeric as fee_amount
@@ -18,6 +22,8 @@ select sum(commit_amount) as commit_amount
 , sum(script_amount) as script_amount
 , count(distinct sender_address) as miners_uniq
 from anchor
+cross join const
+where burn_block_height > min_burn_block
 )
 
 , rewards as (
@@ -25,6 +31,8 @@ select burn_block_height
 , sum(burn_amount + reward_amount) as commit_amount
 -- , count(*) as slots
 from burnchain_rewards
+cross join const
+where burn_block_height > min_burn_block
 group by 1
 )
 
@@ -32,6 +40,8 @@ group by 1
 select sum(r.commit_amount) / sum(a.commit_amount) as miners_avg
 from rewards r
 join anchor a using (burn_block_height)
+cross join const
+where burn_block_height > min_burn_block
 )
 
 -- TODO: Clarify validity. No data for burnchain rewards during burn phase.
@@ -39,7 +49,7 @@ join anchor a using (burn_block_height)
 select (agg.commit_amount + agg.fee_amount + agg.script_amount)/1e8 as "Anchor total (BTC)"
 , agg.fee_amount/1e8 as "Anchor fees (BTC)"
 , agg.miners_uniq as "Miners (distinct)"
-, eff.miners_avg as "Miners (average)"
+, round(eff.miners_avg,2) as "Miners (average)"
 -- , (agg.commit_amount + agg.fee_amount + agg.script_amount)/1e8 * eff.miners_avg as "Est. total spent (BTC)"
 -- , (agg.fee_amount)/1e8 * eff.miners_avg as "Est. total fees (BTC)"
 from anchor_aggregate agg
