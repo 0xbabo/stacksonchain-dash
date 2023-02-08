@@ -46,6 +46,8 @@ cross join const
 where block_height > min_block
 )
 
+-- TODO: Clarify validity. No data for burnchain rewards during burn phase.
+
 select eff.commit as "Net commit (sats)"
 , (select amount from avg_anchor) as "Avg anchor (sats)"
 , (select miners_uniq from avg_anchor) as "Miners (distinct)"
