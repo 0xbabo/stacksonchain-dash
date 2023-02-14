@@ -1,11 +1,17 @@
-select date_bin('30 min', block_time, to_timestamp(0)) as block_time,
-    LEAST(GREATEST(0.001,PERCENTILE_CONT(0.90) within group (order by fee_rate/1e6*180/length(raw_tx))),1) as "90 pctl (High)",
-    avg(fee_rate/1e6*180/length(raw_tx)) as "Mean",
-    LEAST(GREATEST(0.001,PERCENTILE_CONT(0.50) within group (order by fee_rate/1e6*180/length(raw_tx))),1) as "50 pctl (Standard)",
-    LEAST(GREATEST(0.001,PERCENTILE_CONT(0.10) within group (order by fee_rate/1e6*180/length(raw_tx))),1) as "10 pctl (Low)"
+with const as (
+select 1e4 as max_rate
+)
+
+select date_bin('30 min', block_time, '2021-01-03') as block_time
+-- , max(fee_rate/length(raw_tx)) as "max"
+, LEAST(PERCENTILE_CONT(0.90) within group (order by fee_rate/length(raw_tx)),max_rate) as "p90"
+, avg(fee_rate/length(raw_tx)) as "mean"
+, LEAST(PERCENTILE_CONT(0.50) within group (order by fee_rate/length(raw_tx)),max_rate) as "median"
+, LEAST(PERCENTILE_CONT(0.10) within group (order by fee_rate/length(raw_tx)),max_rate) as "p10"
+, min(fee_rate/length(raw_tx)) as "min"
 from txs
+cross join const
 where block_time > now() - interval '7 days'
 and fee_rate > 0
--- and status = 1
-group by 1
+group by 1, max_rate
 order by 1
