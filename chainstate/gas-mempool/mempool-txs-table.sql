@@ -13,7 +13,8 @@ select tx_id as "Explorer"
 , pg_column_size(payload) as tx_size
 , round(fee_rate/pg_column_size(payload)::numeric,3) as ustx_per_byte
 , mem.nonce
-, last.nonce as last_nonce
+, last.nonce as nonce_last
+, (mem.nonce > last.nonce or mem.nonce = 0) :: text as nonce_ok
 , left(sender_address,5) ||'...'|| right(sender_address,5) as sender_address
 , tx_type
 , left(split_part(payload ->> 'contract_id','.',1),5) ||'...'|| right(split_part(payload ->> 'contract_id','.',1),5)
