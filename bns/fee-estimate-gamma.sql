@@ -24,8 +24,8 @@ select to_char(min_fee_rate * 4700/1e6, '990D999999') as "Casual"
 , to_char(avg(fee_rate/pg_column_size(payload)) * 4700/1e6, '990D999999') as "Rush"
 -- , count(*)
 from mempool mem
-join last_tx confirmed using (sender_address)
+left join last_tx last using (sender_address)
 cross join const
 where receipt_time > now() - interval '6 hours'
-and (mem.nonce > confirmed.nonce or mem.nonce = 0) -- ignore txs with invalid nonce
+and ((last.nonce is not null and mem.nonce > last.nonce) or (last.nonce is null and mem.nonce = 0))
 group by min_fee_rate
