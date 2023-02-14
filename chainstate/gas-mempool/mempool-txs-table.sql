@@ -14,15 +14,14 @@ select tx_id as "Explorer"
 , round(fee_rate/pg_column_size(payload)::numeric,3) as ustx_per_byte
 , mem.nonce
 , last.nonce as nonce_last
-, (mem.nonce > last.nonce or mem.nonce = 0) :: text as nonce_ok
+, ((last.nonce is not null and mem.nonce > last.nonce) or (last.nonce is null and mem.nonce = 0)) :: text as nonce_ok
 , left(sender_address,5) ||'...'|| right(sender_address,5) as sender_address
 , tx_type
 , left(split_part(payload ->> 'contract_id','.',1),5) ||'...'|| right(split_part(payload ->> 'contract_id','.',1),5)
     ||'.'|| split_part(payload ->> 'contract_id','.',2) as contract_id
 , payload ->> 'function_name' as function_name
 from mempool mem
-join last_tx last using (sender_address)
--- join last_tx last using (sender_address)
+left join last_tx last using (sender_address)
 where receipt_time > now() - interval '7 days'
 order by 5 desc
 limit 100
