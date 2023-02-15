@@ -18,6 +18,9 @@ with listings as (
     )
     where address like '%.bns-%-%'
     and position('SPNWZ5V2TPWGQGVDR6T7B6RQ4XMGZ4PXTEE0VQ0S.gamma-commission-3-5' in right(source_code,100)) > 0
+    and namespace in ('btc','stx','id','app')
+    and bns ^@ 'xn--'
+    and idn_punycode_decode(right(bns,-4)) ~ '^[\x1F300-\x1F6FF\x1F90C-\x1F9FF\x2600-\x26FF]$'
     and not exists (
         select 1 from transactions ty
         where ty.contract_call_contract_id = sc.contract_id
@@ -28,12 +31,13 @@ with listings as (
 
 select address as "Explorer"
 , block_height
+, block_time
 , price as "Price (STX)"
 , name||'.'||namespace as bns_fqn
-, CASE WHEN left(name,4) = 'xn--'
-    THEN public.idn_punycode_decode(right(name,-4)) ||'.'|| namespace
+, CASE WHEN name ^@ 'xn--'
+    THEN idn_punycode_decode(right(name,-4)) ||'.'|| namespace
     END as depunycode
 , 'https://gamma.io/collections/bns/' || name || '.' || namespace as "Link"
 from listings
-order by block_height desc, id desc
+order by price
 limit 100
