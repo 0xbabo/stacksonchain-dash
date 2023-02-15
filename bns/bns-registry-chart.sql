@@ -19,7 +19,7 @@ select date_bin('7 days', block_time, '2021-01-03')::date as interval
 , count(*) filter (where name ~ '^[a-z]+$' and length(name)=3) as "3 letters"
 , count(*) filter (where name ~ '^[a-z]+$' and length(name)=4) as "4 letters"
 , count(*) filter (where name ~ '^[a-z]+$' and length(name)>=5) as "5+ letters"
-, count(*) filter (where left(name,4) = 'xn--') as "punycode"
+, count(*) filter (where name ^@ 'xn--') as "punycode"
 from registry
 where namespace = 'btc'
 group by 1
