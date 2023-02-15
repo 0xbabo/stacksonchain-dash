@@ -9,7 +9,8 @@ select CASE WHEN function_name = 'purchase-name'
     ELSE left(nx.recipient,5)||'...'||right(nx.recipient,5)
     END as buyer
 , buyer.bns ||'.'|| buyer.namespace as buyer_bns
-, sum(sx.amount/1e6) as "Total Vol (STX)"
+, sum(sx.amount)/1e6 as "Total Vol (STX)"
+-- , round(sum(sx.amount/1e6 * usd.close),2) as "Total Vol (USD)"
 , count(distinct tx_id) as purchases
 from nft_events nx
 join transactions tx using (tx_id)
@@ -25,6 +26,8 @@ left join stxop.bns_address buyer on (
     ELSE nx.recipient
     END = buyer.address
 )
+-- cross join last_block b0
+-- left join prices.stx_usd usd on (usd.ts = date_trunc('hour',b0.block_time))
 where nx.asset_identifier = 'SP000000000000000000002Q6VF78.bns::names'
 -- and nx.asset_event_type = 'transfer'
 and nx.asset_event_type_id = 1
