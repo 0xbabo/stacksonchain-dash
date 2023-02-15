@@ -5,7 +5,8 @@ with registry as (
     from nft_events mint
     join blocks tx using (block_height)
     where asset_identifier = 'SP000000000000000000002Q6VF78.bns::names'
-    and asset_event_type = 'mint'
+    -- and asset_event_type = 'mint'
+    and asset_event_type_id = 2
     order by block_height desc
 )
 

@@ -59,7 +59,8 @@ join stx_events sx using (tx_id)
 join bns_cat using (value)
 join supply using (cat2)
 where nx.asset_identifier = 'SP000000000000000000002Q6VF78.bns::names'
-and nx.asset_event_type = 'transfer'
+-- and nx.asset_event_type = 'transfer'
+and nx.asset_event_type_id = 1
 and namespace = 'btc'
 group by 1,2
 order by 3 desc, 1

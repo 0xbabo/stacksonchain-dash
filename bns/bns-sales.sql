@@ -30,7 +30,8 @@ left join stxop.bns_address buyer on (
     END = buyer.address
 )
 where nx.asset_identifier = 'SP000000000000000000002Q6VF78.bns::names'
-and nx.asset_event_type = 'transfer'
+-- and nx.asset_event_type = 'transfer'
+and nx.asset_event_type_id = 1
 group by 1,2,3,4,5,6
 order by "Price (STX)" desc
 limit 100
