@@ -27,5 +27,6 @@ from mempool mem
 left join last_tx last using (sender_address)
 cross join const
 where receipt_time > now() - interval '6 hours'
+and fee_rate > 0
 and ((last.nonce is not null and mem.nonce > last.nonce) or (last.nonce is null and mem.nonce = 0))
 group by min_fee_rate
