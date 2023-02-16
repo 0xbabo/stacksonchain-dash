@@ -6,7 +6,6 @@ with links ("Link","Name","Category") as (VALUES
     ('https://www.console.xyz/', 'Console', 'Community, DAO, Chat'),
     ('https://pravica.io/', 'Pravica', 'Community, DAO, Chat'),
     ('https://stackerdaos.com/', 'Stacker DAOs', 'Community, DAO'),
-    ('https://liquidium.fi/', 'Liquidium', 'Testnet, NFT Lending'),
     ('https://www.zestprotocol.com/', 'Zest Protocol', 'Testnet, BTC Lending'),
     ('https://deeplake.finance/', 'Deep Lake', 'Testnet, Derivatives'),
     ('https://www.bitflow.finance/', 'Bitflow', 'Testnet, Stable Swap'),

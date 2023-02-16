@@ -1,5 +1,6 @@
 with categories (link,name,contract_like_arr,source_match) as (VALUES
 ('https://neoswap.party/','NeoSwap',ARRAY['SP3Z3KVR3T0F255SC8170SZY7YB52YPY9H9TNZ9PM.%'],''),
+('https://liquidium.finance/','Liquidium',ARRAY['SPDRDM1JT758J434YBFGASNEVY62NYEY673443EJ.%'],''),
 ('https://www.alexgo.io/','ALEX',ARRAY['SP3K8BC0PPEVCV7NZ6QSRWPQ2JE9E5B6N3PA0KBR9.%'],''),
 ('https://stackswap.org/','Stackswap',ARRAY['SP1Z92MPDQEWZXW36VX71Q25HKF5K2EPCJ304F275.%'],''),
 ('https://arkadiko.finance/','Arkadiko',ARRAY['SP2C2YFP12AJZB4MABJBAJ55XECVS7E4PMMZ89YZR.%'],''),
