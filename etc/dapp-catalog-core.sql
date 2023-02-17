@@ -6,7 +6,7 @@ with categories (link,name,contract_like_arr,source_match) as (VALUES
 ('https://arkadiko.finance/','Arkadiko',ARRAY['SP2C2YFP12AJZB4MABJBAJ55XECVS7E4PMMZ89YZR.%'],''),
 ('https://www.lydian.xyz/','Lydian',ARRAY['SP3MBWGMCVC9KZ5DTAYFMG1D0AEJCR7NENTM3FTK5.%'],''),
 ('https://www.lnswap.org/','LNSwap',ARRAY['SP2507VNQZC9VBXM7X7KB4SF4QJDJRSWHG4V39WPY.%swap%'],''),
-('https://www.catamaranswaps.org/','Catamaran Swaps',ARRAY['SP2PABAF9FTAJYNFZH93XENAJ8FVY99RRM50D2JG9.%'],''),
+('https://www.catamaranswaps.org/','Catamaran Swaps',ARRAY['SP2PABAF9FTAJYNFZH93XENAJ8FVY99RRM50D2JG9.%swap%'],''),
 ('https://www.mateswap.io/','Cryptomate (Defunct)',ARRAY['SP32NTG209B861QBHF4TH0C86QB0A12TY2F16WHMY.%'],''),
 ('https://sendstx.com/','Send Many',ARRAY['SP3FBR2AGK5H9QBDH3EEN6DF8EK8JY7RX8QJ5SVTE.send-many%'],''),
 ('https://handles.ryder.id/','Ryder ID',ARRAY['SPC0KWNBJ61BDZRPF3W2GHGK3G3GKS8WZ7ND33PS.%'],''),
