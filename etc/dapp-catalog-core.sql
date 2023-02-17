@@ -10,6 +10,7 @@ with categories (link,name,contract_like_arr,source_match) as (VALUES
 ('https://www.mateswap.io/','Cryptomate (Defunct)',ARRAY['SP32NTG209B861QBHF4TH0C86QB0A12TY2F16WHMY.%'],''),
 ('https://sendstx.com/','Send Many',ARRAY['SP3FBR2AGK5H9QBDH3EEN6DF8EK8JY7RX8QJ5SVTE.send-many%'],''),
 ('https://handles.ryder.id/','Ryder ID',ARRAY['SPC0KWNBJ61BDZRPF3W2GHGK3G3GKS8WZ7ND33PS.%'],''),
+('https://board.stacksforce.xyz/','Stacks Force',ARRAY['SP137KE5TWH59D3N53KD5MXM4TZP2FPQD2VCTXV43.%'],''),
 ('https://ballot.gg/','Ballot',ARRAY['%.ballot-%'],''),
 ('https://syvitamining.com/','Syvita Mining Guild',ARRAY[''
     ,'SP196Q1HN49MJTJFRW08RCRP7YSXY28VE72GQWS0P.%'
