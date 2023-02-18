@@ -1,12 +1,12 @@
-with categories (link,name,address_arr) as (VALUES
-('https://planbetter.org/','Planbetter',ARRAY['SP3TDKYYRTYFE32N19484838WEJ25GX40Z24GECPZ']),
-('https://pool.xverse.app/','Xverse Pool',ARRAY['SPXVRSEH2BKSXAEJ00F1BY562P45D5ERPSKR4Q33']),
-('https://pool.friedger.de/','Friedger Pools',ARRAY[''
-    ,'SP1K1A1PMGW2ZJCNF46NWZWHG8TS1D23EGH1KNK60' -- 1 cycle
-    ,'SP3K3ZEQVE1E914TFPFMT3A7M53MNMWZCFVQCQB0H' -- 3 cycle
-    ,'SP6K6QNYFYF57K814W4SHNGG23XNYYE1B8NV0G1Y' -- 6 cycle
-    ,'SP700C57YJFD5RGHK0GN46478WBAM2KG3A4MN2QJ' -- 12 cycle
-    ,'SPCKCVQ6FTZJQYJ42FGE0FCJ1Y1QMTAK0P2WMGX7' -- deprecated
+with categories (link,name,address_arr) as (
+VALUES ('https://planbetter.org/','Planbetter',ARRAY['SP3TDKYYRTYFE32N19484838WEJ25GX40Z24GECPZ'])
+, ('https://pool.xverse.app/','Xverse Pool',ARRAY['SPXVRSEH2BKSXAEJ00F1BY562P45D5ERPSKR4Q33'])
+, ('https://pool.friedger.de/','Friedger Pools',
+ARRAY['SP1K1A1PMGW2ZJCNF46NWZWHG8TS1D23EGH1KNK60' -- 1 cycle
+    , 'SP3K3ZEQVE1E914TFPFMT3A7M53MNMWZCFVQCQB0H' -- 3 cycle
+    , 'SP6K6QNYFYF57K814W4SHNGG23XNYYE1B8NV0G1Y' -- 6 cycle
+    , 'SP700C57YJFD5RGHK0GN46478WBAM2KG3A4MN2QJ' -- 12 cycle
+    , 'SPCKCVQ6FTZJQYJ42FGE0FCJ1Y1QMTAK0P2WMGX7' -- deprecated
 ])
 )
 
@@ -25,4 +25,3 @@ join categories cat on (
 )
 group by 1,2
 order by users desc
-limit 100
