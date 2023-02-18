@@ -38,9 +38,7 @@ select cat.link as "Link", cat.name as "Name"
 , count(*) as txs_all
 , 1e-6 * sum(amount) as "Raw Vol, All (STX)"
 from categories cat
-left join transactions tx on (
-    contract_call_contract_id like cat.contract_like
-)
+join transactions tx on (contract_call_contract_id like cat.contract_like)
 left join stx_events sx using (tx_id)
 -- ignore common non-user-facing contract calls
 where not contract_call_contract_id like ANY(
