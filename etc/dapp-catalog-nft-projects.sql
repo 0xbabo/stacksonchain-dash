@@ -1,5 +1,5 @@
 with categories (link,name,contract_like) as (
-VALUES ('https://boom.money/','Boom NFTs','SP497E7RX3233ATBS2AB9G4WTHB63X5PBSP5VGAQ.boom-nfts')
+VALUES ('https://boom.money/nft/mint','Boom NFTs','SP497E7RX3233ATBS2AB9G4WTHB63X5PBSP5VGAQ.boom-nfts')
 , ('https://owl.link/','Owl Link','SP3A6FJ92AA0MS2F57DG786TFNG8J785B3F8RSQC9.owl-link')
 , ('https://blocksurvey.io/','BlockSurvey','SPNWZ5V2TPWGQGVDR6T7B6RQ4XMGZ4PXTEE0VQ0S.blocksurvey')
 , ('https://bitfari.com/','Bitfari','SP213KNHB5QD308TEESY1ZMX1BP8EZDPG4JWD0MEA.%')
@@ -18,30 +18,24 @@ VALUES ('https://boom.money/','Boom NFTs','SP497E7RX3233ATBS2AB9G4WTHB63X5PBSP5V
 , ('https://www.heylayer.com/','HeyLayer','SP248HH800501WYSG7Z2SS1ZWHQW1GGH85ME34NT2.%')
 , ('https://www.crashpunks.com/','Crashpunks','SP3QSAJQ4EA8WXEDSRRKMZZ29NH91VZ6C5X88FGZQ.crashpunks%')
 , ('https://www.explorerguild.io/','Explorer Guild','SP2X0TZ59D5SZ8ACQ6YMCHHNR2ZN51Z32E2CJ173.%')
--- , ('https://guestsnft.com/','The Guests','%guests%')
--- , ('https://stackspops.club/','Stacks Pops','%stacks-pops%')
+, ('https://stackspops.club/','Stacks Pops','SP277HZA8AGXV42MZKDW5B2NNN61RHQ42MTAHVNB1.stacks-pops%')
+, ('https://boom.money/nft/boombox','Boomboxes','SP497E7RX3233ATBS2AB9G4WTHB63X5PBSP5VGAQ.boombox%')
+, ('https://boom.money/nft/boombox','Boomboxes','SP1QK1AZ24R132C0D84EEQ8Y2JDHARDR58R72E1ZW.boombox%')
+, ('https://boom.money/nft/boombox','Boomboxes','SPMS4E9RQ4GCGG68R6D15PKV01TYNCBPYZG1ZMFE.boombox%')
+, ('https://bitcoinmonkeys.io/','Bitcoin Monkeys','SP125J1ADVYWGWB9NQRCVGKYAG73R17ZNMV17XEJ7.%')
+, ('https://bitcoinmonkeys.io/','Bitcoin Monkeys','SPMWNPDCQMCXANG6BYK2TJKXA09BTSTES0VVBXVR.%')
+, ('https://nonnish.com/','Nonnish','SPVVASJ83H223TCEP8Z8SHZDFDBFXSM4EGSWCVR2.%')
+, ('https://nonnish.com/','Nonnish','SP1D3Y8A2VVD2W98VFXCG5AXRYX5PJBBEMV1YPKF1.%')
+, ('https://www.bitcoinbadgers.art/','Bitcoin Badgers','SP38FN88VZ97GWV0E8THXRM6Z5VMFPHFY4J1JEC5S.btc-badgers')
+, ('https://www.bitcoinbadgers.art/','Bitcoin Badgers','SP27F9EJH20K3GT6GHZG0RD08REZKY2TDMD6D9M2Z.%badgers%')
+, ('https://www.stacksboard.art/','Stacksboard','SPGAKH27HF1T170QET72C727873H911BKNMPF8YB.%')
+, ('https://www.stacksboard.art/','Stacksboard','SP1F6E7S7SEZZ2R2VHCY0BYJ2G81CCSSJ7PC4SSHP.%')
+, ('https://guestsnft.com/','The Guests','SP1CSHTKVHMMQJ7PRQRFYW6SB4QAW6SR3XY2F81PA.the-guests')
+, ('https://guestsnft.com/','The Guests','SPNWZ5V2TPWGQGVDR6T7B6RQ4XMGZ4PXTEE0VQ0S.guests-hosted-stacks-parrots')
+, ('https://guestsnft.com/','The Guests','SP1XPG9QFX5M95G36SGN9R8YJ4KJ0JB7ZXNH892N6.the-lolas')
+, ('https://guestsnft.com/','The Guests','SP2QDMH88MEZ8FFAYHW4B0BTXJRTHX8XBD54FE7HJ.degen-naming-service')
+, ('https://guestsnft.com/','The Guests','SP3252T1HMQHZTA9S22WZ2HZMKC4CVH965SHSERTH.%')
 -- , ('https://90stx.xyz/','90stx','%90stx%')
--- , ('https://boom.money/boomboxes','Boomboxes',
--- ARRAY['SP497E7RX3233ATBS2AB9G4WTHB63X5PBSP5VGAQ.boombox%'
---     , 'SP1QK1AZ24R132C0D84EEQ8Y2JDHARDR58R72E1ZW.boombox%'
---     , 'SPMS4E9RQ4GCGG68R6D15PKV01TYNCBPYZG1ZMFE.boombox%'
--- ])
--- , ('https://bitcoinmonkeys.io/','Bitcoin Monkeys',
--- ARRAY['SP125J1ADVYWGWB9NQRCVGKYAG73R17ZNMV17XEJ7.%'
---     , 'SPMWNPDCQMCXANG6BYK2TJKXA09BTSTES0VVBXVR.%'
--- ])
--- , ('https://nonnish.com/','Nonnish',
--- ARRAY['SPVVASJ83H223TCEP8Z8SHZDFDBFXSM4EGSWCVR2.%'
---     , 'SP1D3Y8A2VVD2W98VFXCG5AXRYX5PJBBEMV1YPKF1.%'
--- ])
--- , ('https://www.bitcoinbadgers.art/','Bitcoin Badgers',
--- ARRAY['SP38FN88VZ97GWV0E8THXRM6Z5VMFPHFY4J1JEC5S.btc-badgers'
---     , 'SP27F9EJH20K3GT6GHZG0RD08REZKY2TDMD6D9M2Z.%badgers%'
--- ])
--- , ('https://www.stacksboard.art/','Stacksboard',
--- ARRAY['SPGAKH27HF1T170QET72C727873H911BKNMPF8YB.%'
---     , 'SP1F6E7S7SEZZ2R2VHCY0BYJ2G81CCSSJ7PC4SSHP.%'
--- ])
 )
 
 select cat.link as "Link", cat.name as "Name"
