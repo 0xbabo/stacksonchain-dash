@@ -15,6 +15,7 @@ SELECT DISTINCT concat('<a href="https://mempool.space/tx/'
 , round(tx.fee * 1e8) as fee_amount
 , round(tx.output[1].value * 1e8) as script_amount
 -- , 'TBD' as canonical
+-- , substr(tx.output[1].script_pub_key.hex,3) as script_hex
 , concat('<a href="https://explorer.stacks.co/block/0x'
     , substr(tx.output[1].script_pub_key.hex,9+2*3,2*32), '" target = "_blank">'
     , substr(tx.output[1].script_pub_key.hex,9+2*3,10), '...'
