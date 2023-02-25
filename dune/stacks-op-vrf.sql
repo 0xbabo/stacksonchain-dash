@@ -13,8 +13,6 @@ SELECT concat('<a href="https://mempool.space/tx/'
 , round(tx.fee * 1e8) as fee_amount
 , round(tx.output[1].value * 1e8) as script_amount
 , length(from_hex(substr(tx.output[1].script_pub_key.hex,3))) as script_bytes
--- , from_hex(substr(tx.output[1].script_pub_key.hex,11,2)) as stx_op
--- , substr(tx.output[1].script_pub_key.hex,3) as script_hex
 , substr(tx.output[1].script_pub_key.hex,7+2*3,2*20) as msg_consensus_hash
 , substr(tx.output[1].script_pub_key.hex,7+2*23,2*32) as msg_vrf_key
 , substr(tx.output[1].script_pub_key.hex,7+2*55,2*25) as msg_memo

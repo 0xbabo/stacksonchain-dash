@@ -1,4 +1,4 @@
-SELECT DISTINCT concat('<a href="https://mempool.space/tx/'
+SELECT concat('<a href="https://mempool.space/tx/'
     , substr(tx.id,3), '" target = "_blank">'
     , substr(tx.id,3,10), '...'
     , '</a>') as tx_id
@@ -10,12 +10,11 @@ SELECT DISTINCT concat('<a href="https://mempool.space/tx/'
     , tx.input[1].script_pub_key.address, '" target = "_blank">'
     , tx.input[1].script_pub_key.address
     , '</a>') as input_address
-, round(1e8 * coalesce(sum(op_pox.value) over (partition by tx.id),0)) as pox_amount
-, round(1e8 * coalesce(sum(op_burn.value) over (partition by tx.id),0)) as burn_amount
+, round((tx.output_value - tx.output[1].value - coalesce(op_self.value,0) - coalesce(op_burn.value,0)) * 1e8) as pox_amount
+, round(coalesce(op_burn.value,0) * 1e8) as burn_amount
 , round(tx.fee * 1e8) as fee_amount
 , round(tx.output[1].value * 1e8) as script_amount
 -- , 'TBD' as canonical
--- , substr(tx.output[1].script_pub_key.hex,3) as script_hex
 , concat('<a href="https://explorer.stacks.co/block/0x'
     , substr(tx.output[1].script_pub_key.hex,9+2*3,2*32), '" target = "_blank">'
     , substr(tx.output[1].script_pub_key.hex,9+2*3,10), '...'
@@ -27,10 +26,16 @@ SELECT DISTINCT concat('<a href="https://mempool.space/tx/'
 , bytearray_to_integer(from_hex(substr(tx.output[1].script_pub_key.hex,9+2*77,2*2))) as msg_key_txoff
 , bytearray_to_integer(from_hex(substr(tx.output[1].script_pub_key.hex,9+2*79,2*1))) as msg_burn_parent_mod
 FROM bitcoin.transactions tx
-LEFT JOIN bitcoin.outputs op_burn ON (op_burn.tx_id = tx.id and op_burn.index > 0
-    and op_burn.address = '1111111111111111111114oLvT2')
-LEFT JOIN bitcoin.outputs op_pox ON (op_pox.tx_id = tx.id and op_pox.index > 0
-    and op_pox.address <> '1111111111111111111114oLvT2' and op_pox.address <> tx.input[1].script_pub_key.address)
+LEFT JOIN LATERAL (
+    SELECT op.tx_id as id, sum(op.value) as value FROM bitcoin.outputs op
+    WHERE op.address = '1111111111111111111114oLvT2'
+    GROUP BY 1
+) op_burn ON (op_burn.id = tx.id)
+LEFT JOIN LATERAL (
+    SELECT op.tx_id as id, sum(op.value) as value FROM bitcoin.outputs op
+    WHERE op.address = tx.input[1].script_pub_key.address
+    GROUP BY 1
+) op_self ON (op_self.id = tx.id)
 -- WHERE tx.block_height >= 666050 -- block height of Stacks 2.0 genesis
 WHERE tx.block_height >= 777000 -- more recent
 AND tx.output_count > 2
