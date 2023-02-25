@@ -1,4 +1,5 @@
-SELECT count(distinct tx.id) as txs
+SELECT count(distinct tx.id) as commit_txs
+, count(distinct tx.input[1].script_pub_key.address) as commit_accounts
 , round(sum(tx.fee) + sum(tx.output_value - coalesce(op_self.value,0)), 8) as total_amount
 , round(sum(tx.output_value - coalesce(op_self.value,0)) - sum(coalesce(op_burn.value,0)) - sum(tx.output[1].value), 8) as pox_amount
 , round(sum(coalesce(op_burn.value,0)), 8) as burn_amount
