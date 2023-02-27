@@ -7,15 +7,13 @@ SELECT count(distinct tx.id) as commit_txs
 , round(sum(tx.output[1].value), 8) as script_amount
 FROM bitcoin.transactions tx
 LEFT JOIN LATERAL (
-    SELECT op.tx_id as id, sum(op.value) as value FROM bitcoin.outputs op
-    WHERE op.address = '1111111111111111111114oLvT2'
-    GROUP BY 1
-) op_burn ON (op_burn.id = tx.id)
+    SELECT sum(op.value) as value FROM bitcoin.outputs op
+    WHERE op.tx_id = tx.id AND op.address = '1111111111111111111114oLvT2'
+) op_burn ON TRUE
 LEFT JOIN LATERAL (
-    SELECT op.tx_id as id, sum(op.value) as value FROM bitcoin.outputs op
-    WHERE op.address = tx.input[1].script_pub_key.address
-    GROUP BY 1
-) op_self ON (op_self.id = tx.id)
+    SELECT sum(op.value) as value FROM bitcoin.outputs op
+    WHERE op.tx_id = tx.id AND op.address = tx.input[1].script_pub_key.address
+) op_self ON TRUE
 WHERE tx.block_height >= 666050 -- block height of Stacks 2.0 genesis
 AND tx.output_count > 2
 AND starts_with(tx.output[1].script_pub_key.hex, '0x6a4c5058325b') -- OP_RETURN + OP_PUSHDATA1(0x50) + magic 'X2' + stx_op '['
