@@ -4,7 +4,7 @@ with markets (title,contract_format,function_name) as (VALUES
     ('Gamma','%.bns-%-v1', 'purchase-name')
 )
 
-select distinct tx.tx_hash as "Explorer"
+select tx.tx_hash as "Explorer"
 , title as market
 , tx.block_time::date
 , CASE WHEN function_name = 'purchase-name'
@@ -12,19 +12,22 @@ select distinct tx.tx_hash as "Explorer"
     ELSE left(nx.recipient,5)||'...'||right(nx.recipient,5)
     END as buyer_address
 , buyer.bns ||'.'|| buyer.namespace as buyer_bns
-, CASE WHEN buyer.bns ^@ 'xn--' THEN idn_punycode_decode(right(buyer.bns,-4)) ||'.'|| buyer.namespace END as b_puny
-, sale.bns ||'.'|| sale.namespace as sold_fqn
+, CASE WHEN buyer.bns ^@ 'xn--' THEN idn_punycode_decode(right(buyer.bns,-4)) ||'.'|| buyer.namespace END as buyer_puny
+, sale.bns ||'.'|| sale.namespace as sale_fqn
 , CASE WHEN sale.bns ^@ 'xn--'
     THEN idn_punycode_decode(right(encode(decode(rtrim(split_part(split_part(nx.value,',',1),'0x',2) ,'}'), 'hex'), 'escape'),-4))
-        ||'.'|| sale.namespace END as s_puny
-, sum(sx.amount/1e6) over (partition by tx_id) as "Price (STX)"
-from nft_events nx
-join transactions tx using (tx_id)
+        ||'.'|| sale.namespace END as sale_puny
+, stx.value as "Price (STX)"
+from transactions tx
+join nft_events nx using (tx_id)
+left join lateral (
+    select sum(amount)/1e6 as value
+    from stx_events sx where sx.tx_id = tx.tx_id
+) stx on true
 join markets on (contract_call_contract_id like contract_format and contract_call_function_name = function_name)
-join stx_events sx using (tx_id)
 join stxop.bns_address sale on (
-    namespace = encode(decode(rtrim(split_part(split_part(value,',',2),'0x',2) ,'}'), 'hex'), 'escape')
-    and bns = encode(decode(rtrim(split_part(split_part(value,',',1),'0x',2) ,'}'), 'hex'), 'escape')
+    namespace = encode(decode(rtrim(split_part(split_part(nx.value,',',2),'0x',2) ,'}'), 'hex'), 'escape')
+    and bns = encode(decode(rtrim(split_part(split_part(nx.value,',',1),'0x',2) ,'}'), 'hex'), 'escape')
 )
 left join stxop.bns_address buyer on (
     CASE WHEN function_name = 'purchase-name'
