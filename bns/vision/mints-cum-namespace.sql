@@ -19,20 +19,12 @@ order by 1,2
 )
 
 select distinct interval
-, coalesce(
-    sum(count) filter (where namespace = 'btc') over (order by interval)
-    , 0) as cum_btc
-, coalesce(
-    sum(count) filter (where namespace = 'stx') over (order by interval)
-    , 0) as cum_stx
-, coalesce(
-    sum(count) filter (where namespace = 'app') over (order by interval)
-    , 0) as cum_app
-, coalesce(
-    sum(count) filter (where namespace = 'id') over (order by interval)
-    , 0) as cum_id
+, coalesce(sum(count) filter (where namespace = 'btc') over (order by interval), 0) as btc
+, coalesce(sum(count) filter (where namespace = 'stx') over (order by interval), 0) as stx
+, coalesce(sum(count) filter (where namespace = 'app') over (order by interval), 0) as app
+, coalesce(sum(count) filter (where namespace = 'id') over (order by interval), 0) as id
 , coalesce(
     sum(count) filter (where namespace not in ('btc','stx','app','id')) over (order by interval)
-    , 0) as cum_other
+    , 0) as "Other"
 from series
 order by 1
