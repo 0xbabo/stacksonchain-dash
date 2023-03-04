@@ -16,4 +16,4 @@ LEFT JOIN LATERAL (
 ) op_self ON TRUE
 WHERE tx.block_height >= 666050 -- block height of Stacks 2.0 genesis
 AND tx.output_count > 2
-AND starts_with(tx.output[1].script_pub_key.hex, '0x6a4c5058325b') -- OP_RETURN + OP_PUSHDATA1(0x50) + magic 'X2' + stx_op '['
+AND starts_with(tx.output[1].script_pub_key.hex, 0x6a4c5058325b) -- OP_RETURN + OP_PUSHDATA1(0x50) + magic 'X2' + stx_op '['
