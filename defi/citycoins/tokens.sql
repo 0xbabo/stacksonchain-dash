@@ -10,32 +10,41 @@ select 'SP1Z92MPDQEWZXW36VX71Q25HKF5K2EPCJ304F275.wstx-token-v4a::null' as token
 )
 
 , tokens as (
-select contract_id,
-    (properties ->> 'name') name,
-    (properties ->> 'symbol') symbol,
-    (properties ->> 'decimals') :: numeric decimals,
-    power(10, (properties ->> 'decimals') :: numeric) base
+select contract_id
+, (properties ->> 'name') name
+, (properties ->> 'symbol') symbol
+, (properties ->> 'decimals') :: numeric decimals
+, power(10, (properties ->> 'decimals') :: numeric) base
 from token_properties
 cross join const
 where contract_id in (token_mia_v1,token_nyc_v1,token_mia_v2,token_nyc_v2)
 )
 
 , supply as (
-select asset_identifier, sum(total) as supply from (
-    select asset_identifier, sum(amount) as total
-    from ft_events
-    cross join const
-    right join tokens on (contract_id = asset_identifier)
-    where (sender is null)
-    group by 1
-union all
-    select asset_identifier, sum(-amount) as total
-    from ft_events
-    cross join const
-    right join tokens on (contract_id = asset_identifier)
-    where (recipient is null)
-    group by 1
-) sub
+with credit as (
+select fx.asset_identifier, recipient as address
+, sum(amount) as amount
+from tokens tk
+join ft_events fx on (fx.asset_identifier = tk.contract_id)
+group by 1,2
+)
+, balance as (
+select cr.asset_identifier, cr.address
+, cr.amount - coalesce(debit.amount,0) as amount
+from credit cr
+left join lateral (
+    select sum(fx.amount) as amount from ft_events fx
+    where fx.asset_identifier = cr.asset_identifier
+    and fx.sender = cr.address
+) debit ON TRUE
+)
+select asset_identifier
+, count(*) as users
+, count(*) filter (where amount > 0) as holders
+, sum(amount) as supply
+from balance
+join tokens on (contract_id = asset_identifier)
+where address is not null
 group by 1
 )
 
@@ -90,6 +99,7 @@ union all
 select split_part(contract_id,'::',1) as "Explorer"
 , replace(split_part(split_part(contract_id,'::',1),'.',2),'-token','') as name
 , symbol, decimals
+, users, holders
 , to_char(supply / base, 'fm999G999G999G999G999D999') as "Circulating Supply"
 , (supply / base * price) as "Market Cap (STX)"
 , liquidity as "Liquidity (STX)"

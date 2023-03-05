@@ -7,33 +7,42 @@ select 'SP2C2YFP12AJZB4MABJBAJ55XECVS7E4PMMZ89YZR.arkadiko-swap-v2-1' as contrac
 )
 
 , tokens as (
-    select contract_id,
-        (properties ->> 'name') name,
-        (properties ->> 'symbol') symbol,
-        (properties ->> 'decimals') :: numeric decimals,
-        power(10, (properties ->> 'decimals') :: numeric) base
-    from token_properties
-    cross join const
-    where contract_id in (token_usda, token_diko, token_stdiko)
+select contract_id
+, (properties ->> 'name') name
+, (properties ->> 'symbol') symbol
+, (properties ->> 'decimals') :: numeric decimals
+, power(10, (properties ->> 'decimals') :: numeric) base
+from token_properties
+cross join const
+where contract_id in (token_usda, token_diko, token_stdiko)
 )
 
 , supply as (
-    select asset_identifier, sum(total) as supply from (
-        select asset_identifier, sum(amount) as total
-        from ft_events
-        cross join const
-        right join tokens on (contract_id = asset_identifier)
-        where (sender is null)
-        group by 1
-    union all
-        select asset_identifier, sum(-amount) as total
-        from ft_events
-        cross join const
-        right join tokens on (contract_id = asset_identifier)
-        where (recipient is null)
-        group by 1
-    ) sub
-    group by 1
+with credit as (
+select fx.asset_identifier, recipient as address
+, sum(amount) as amount
+from tokens tk
+join ft_events fx on (fx.asset_identifier = tk.contract_id)
+group by 1,2
+)
+, balance as (
+select cr.asset_identifier, cr.address
+, cr.amount - coalesce(debit.amount,0) as amount
+from credit cr
+left join lateral (
+    select sum(fx.amount) as amount from ft_events fx
+    where fx.asset_identifier = cr.asset_identifier
+    and fx.sender = cr.address
+) debit ON TRUE
+)
+select asset_identifier
+, count(*) as users
+, count(*) filter (where amount > 0) as holders
+, sum(amount) as supply
+from balance
+join tokens on (contract_id = asset_identifier)
+where address is not null
+group by 1
 )
 
 , weighted as (
@@ -50,7 +59,6 @@ join dex.swap_balances stx_usda on (stx_usda.token_x = token_wstx and stx_usda.t
     and stx_usda.block_height = b.block_height)
 left join dex.swap_balances diko_usda on (diko_usda.token_x = token_diko and diko_usda.token_y = token_usda
     and diko_usda.block_height = b.block_height)
--- left join ft_events fx
 where 0 < (stx_usda.balance_y)
 and b.block_height > b0.block_height - 10
 )
@@ -65,6 +73,7 @@ union all
 
 select split_part(contract_id,'::',1) as "Explorer"
 , name, symbol, decimals
+, users, holders
 , to_char(supply / base, 'fm999G999G999G999G999D999') as "Circulating Supply"
 , (supply / base * price) as "Market Cap (STX)"
 , liquidity as "Liquidity (STX)"

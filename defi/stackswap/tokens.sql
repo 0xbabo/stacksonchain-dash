@@ -8,33 +8,42 @@ select 'SPVRC3RHFD58B2PY1HZD2V71THPW7G445WBRCQYW.octopus_v01' as locker_stackswa
 )
 
 , tokens as (
-    select contract_id,
-        (properties ->> 'name') name,
-        (properties ->> 'symbol') symbol,
-        (properties ->> 'decimals') :: numeric decimals,
-        power(10, (properties ->> 'decimals') :: numeric) base
-    from token_properties
-    cross join const
-    where contract_id in (token_lbtc, token_stsw, token_vstsw)
+select contract_id
+, (properties ->> 'name') name
+, (properties ->> 'symbol') symbol
+, (properties ->> 'decimals') :: numeric decimals
+, power(10, (properties ->> 'decimals') :: numeric) base
+from token_properties
+cross join const
+where contract_id in (token_lbtc, token_stsw, token_vstsw)
 )
 
 , supply as (
-    select asset_identifier, sum(total) as supply from (
-        select asset_identifier, sum(amount) as total
-        from ft_events
-        cross join const
-        right join tokens on (contract_id = asset_identifier)
-        where (sender is null or sender = locker_stackswap)
-        group by 1
-    union all
-        select asset_identifier, sum(-amount) as total
-        from ft_events
-        cross join const
-        right join tokens on (contract_id = asset_identifier)
-        where (recipient is null or recipient = locker_stackswap)
-        group by 1
-    ) sub
-    group by 1
+with credit as (
+select fx.asset_identifier, recipient as address
+, sum(amount) as amount
+from tokens tk
+join ft_events fx on (fx.asset_identifier = tk.contract_id)
+group by 1,2
+)
+, balance as (
+select cr.asset_identifier, cr.address
+, cr.amount - coalesce(debit.amount,0) as amount
+from credit cr
+left join lateral (
+    select sum(fx.amount) as amount from ft_events fx
+    where fx.asset_identifier = cr.asset_identifier
+    and fx.sender = cr.address
+) debit ON TRUE
+)
+select asset_identifier
+, count(*) as users
+, count(*) filter (where amount > 0) as holders
+, sum(amount) as supply
+from balance
+join tokens on (contract_id = asset_identifier)
+where address is not null
+group by 1
 )
 
 , weighted as (
@@ -54,7 +63,6 @@ left join dex.swap_balances lbtc_stx on (lbtc_stx.token_x = token_wstx and lbtc_
     and lbtc_stx.block_height = b.block_height)
 left join dex.swap_balances lbtc_stsw on (lbtc_stsw.token_x = token_stsw and lbtc_stsw.token_y = token_lbtc
     and lbtc_stsw.block_height = b.block_height)
--- left join ft_events fx
 where 0 < (lbtc_stx.balance_y + lbtc_stsw.balance_y)
 and b.block_height > b0.block_height - 10
 )
@@ -69,6 +77,7 @@ union all
 
 select split_part(contract_id,'::',1) as "Explorer"
 , name, symbol, decimals
+, users, holders
 , to_char(supply / base, 'fm999G999G999G999G999D999') as "Circulating Supply"
 , (supply / base * price) as "Market Cap (STX)"
 , liquidity as "Liquidity (STX)"
