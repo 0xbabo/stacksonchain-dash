@@ -17,7 +17,9 @@ and contract_call_contract_id like 'SP1Z92MPDQEWZXW36VX71Q25HKF5K2EPCJ304F275.%s
 -- and fx.amount / fy.amount < 50 -- remove spurious trades
 )
 
-select date_bin('6 hours', block_time, '2021-01-03') as interval
+select to_char( date_bin(
+    CASE WHEN block_time > now() - interval '7 days' THEN interval '1 hours' ELSE interval '24 hours' END
+    , block_time, '2021-01-03'), 'YYYY-MM-DD"T"HH24"h"') as ts
 , max(fx.amount / fy.amount * tky.factor / tkx.factor ) as max_rate
 , min(fx.amount / fy.amount * tky.factor / tkx.factor ) as min_rate
 , avg(fx.amount / fy.amount * tky.factor / tkx.factor ) as avg_rate
@@ -35,4 +37,4 @@ join tokens tky
     on (tky.contract_id = fy.asset_identifier)
 join tokens tkx
     on (tkx.contract_id = fx.asset_identifier)
-group by interval
+group by 1
