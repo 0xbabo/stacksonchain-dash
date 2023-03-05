@@ -1,5 +1,6 @@
-select date_bin(CASE WHEN block_time > now() - interval '7 days' THEN interval '1 hours' ELSE interval '6 hours' END
-    , block_time, '2021-01-03') as interval
+select to_char( date_bin(
+    CASE WHEN block_time > now() - interval '7 days' THEN interval '1 hours' ELSE interval '24 hours' END
+    , block_time, '2021-01-03'), 'YYYY-MM-DD"T"HH24"h"') as ts
 , max(fx.amount / fy.amount) * 1e6 as max_rate
 , min(fx.amount / fy.amount) * 1e6 as min_rate
 , avg(fx.amount / fy.amount) * 1e6 as avg_rate
