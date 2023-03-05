@@ -29,6 +29,7 @@ left join transactions tx on (
 left join ft_events fx on (
     fx.block_height = b.block_height and fx.tx_id = tx.tx_id
     and fx.asset_identifier = cc.token_y
+    -- and tx.sender_address = any(array[fx.sender,fx.recipient])
     and sender_address = any(array[fx.sender,fx.recipient])
 )
 cross join const
@@ -37,13 +38,15 @@ group by 1,2,3,4
 order by 1
 )
 
-select date_bin('12 hours', wp.block_time, '2022-01-01') as interval
+select to_char( date_bin(
+    CASE WHEN block_time > now() - interval '7 days' THEN interval '1 hours' ELSE interval '24 hours' END
+    , block_time, '2021-01-03')
+    , 'YYYY-MM-DD"T"HH24"h"') as interval
 , max(wp.price) as price_max
 , min(wp.price) as price_min
 , avg(wp.price) as price_avg
-, LEAST(0.75 + sum(volume) / 7e6, 1.4) as lerp_vol
-, (power(1.04, power(avg(datediff_h), 0.76) / 6.0)) as projected_rate
+, LEAST(0.75 + sum(volume) / 15e6, 1.4) as lerp_vol
+-- , (power(1.04, power(avg(datediff_h), 0.76) / 6.0)) as projected_rate
 from weighted wp
 group by 1
 order by 1
- 

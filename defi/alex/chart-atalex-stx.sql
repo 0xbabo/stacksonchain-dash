@@ -21,12 +21,16 @@ where 0 < (alex_stx.balance_y)
 order by 1
 )
 
-select date_bin('12 hours', wp.block_time, '2022-01-01') as interval
+select to_char( date_bin(
+    CASE WHEN block_time > now() - interval '7 days' THEN interval '1 hours' ELSE interval '24 hours' END
+    , block_time, '2021-01-03')
+    , 'YYYY-MM-DD"T"HH24"h"') as interval
 , max(wp.price) as price_max
 , min(wp.price) as price_min
 , avg(wp.price) as price_avg
 -- , LEAST(0.0 + sum(volume) / 5e6, 0.7) as lerp_vol
 , 0 as lerp_vol
+, 0 as zero
 , log( avg(price) ) * 0.5 + 0.7 as lerp_log
 from weighted wp
 group by 1

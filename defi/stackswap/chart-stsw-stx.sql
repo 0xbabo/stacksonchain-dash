@@ -25,6 +25,7 @@ left join transactions tx on (
 left join ft_events fx on (
     fx.block_height = b.block_height and fx.tx_id = tx.tx_id
     and fx.asset_identifier = cc.token_y
+    -- and tx.sender_address = any(array[fx.sender,fx.recipient])
     and lp_id = any(array[fx.sender,fx.recipient])
 )
 where 0 < balance_y
@@ -32,12 +33,16 @@ group by 1,2,3
 order by 1
 )
 
-select date_bin('1 day', wp.block_time, '2021-11-01')::date as interval
+select to_char( date_bin(
+    CASE WHEN block_time > now() - interval '7 days' THEN interval '1 hours' ELSE interval '24 hours' END
+    , block_time, '2021-01-03')
+    , 'YYYY-MM-DD"T"HH24"h"') as interval
 , max(wp.price) as price_max
 , min(wp.price) as price_min
 , avg(wp.price) as price_avg
-, 0.075 + coalesce(sum(volume),0) / 2e7 as volume
-, log( avg(price) ) * 0.25 + 0.385 as log_lerp
+, -0.05 + coalesce(sum(volume),0) / 3e7 as lerp_vol
+, 0 as zero
+, log( avg(price) ) * 0.20 + 0.385 as lerp_log
 -- , 2*avg(balance_x)/1e6/1e7 as liquidity_scaled
 from weighted wp
 group by 1

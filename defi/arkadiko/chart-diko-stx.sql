@@ -24,7 +24,10 @@ where 0 < (stx_usda.balance_y)
 order by 1
 )
 
-select date_bin('1 day', wp.block_time, '2021-10-01')::date as interval
+select to_char( date_bin(
+    CASE WHEN block_time > now() - interval '7 days' THEN interval '1 hours' ELSE interval '24 hours' END
+    , block_time, '2021-01-03')
+    , 'YYYY-MM-DD"T"HH24"h"') as interval
 , max(wp.price) as price_max
 , min(wp.price) as price_min
 , avg(wp.price) as price_avg
