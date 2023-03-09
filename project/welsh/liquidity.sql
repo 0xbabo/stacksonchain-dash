@@ -13,7 +13,8 @@ select contract_id, token_x, token_y
 , avg(balance_y) as balance_y
 from dex.coin_contract_prices
 where block_height > get_max_block() - 10
-and balance_x is not null
+and balance_x is not null and balance_y is not null
+and length(pool::text) > 2 -- empty json?
 group by 1,2,3,4
 )
 
