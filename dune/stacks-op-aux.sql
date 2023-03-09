@@ -4,7 +4,7 @@ SELECT concat('<a href="https://mempool.space/tx/'
     , '</a>') as tx_id
 , tx.block_height
 , tx.index
-, tx.size
+, tx.virtual_size as vbytes
 , tx.output_count
 , concat('<a href="https://mempool.space/address/'
     , tx.input[1].script_pub_key.address, '" target = "_blank">'
