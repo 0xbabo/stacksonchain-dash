@@ -5,6 +5,7 @@ SELECT concat('<a href="https://mempool.space/tx/'
 , tx.block_height
 , tx.index
 , tx.virtual_size as vbytes
+, round(tx.fee * 1e8 / tx.virtual_size, 1) as sats_vbyte
 , tx.output_count
 , concat('<a href="https://mempool.space/address/'
     , tx.input[1].script_pub_key.address, '" target = "_blank">'
