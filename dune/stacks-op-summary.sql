@@ -1,5 +1,11 @@
 SELECT substr(tx.output[1].script_pub_key.hex,5,1) as stx_op_hex
 , from_utf8(substr(tx.output[1].script_pub_key.hex,5,1)) as stx_op_ascii
+, CASE from_utf8(substr(tx.output[1].script_pub_key.hex,5,1))
+    WHEN '^' THEN 'KeyStxOp'
+    WHEN 'p' THEN 'PreStxOp'
+    WHEN '$' THEN 'TransferStxOp'
+    WHEN 'x' THEN 'StackStxOp'
+    END as stx_op_name
 , count(*) as txs
 , count(distinct tx.input[1].script_pub_key.address) as accounts
 FROM bitcoin.transactions tx
@@ -8,6 +14,6 @@ AND tx.output_count > 1
 AND substr(tx.output[1].script_pub_key.hex,1,1) = 0x6a -- OP_RETURN, then payload_size
 AND substr(tx.output[1].script_pub_key.hex,3,2) = 0x5832 -- STX magic 'X2'
 AND substr(tx.output[1].script_pub_key.hex,5,1) IN (0x5e,0x70,0x78,0x24)
-GROUP BY 1,2
+GROUP BY 1,2,3
 -- HAVING count(*) > 1
-ORDER BY 3 DESC, 4 DESC
+ORDER BY txs DESC, accounts DESC
