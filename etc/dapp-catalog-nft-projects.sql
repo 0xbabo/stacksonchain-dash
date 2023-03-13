@@ -22,6 +22,7 @@ VALUES ('https://boom.money/nft/mint','Boom NFTs','SP497E7RX3233ATBS2AB9G4WTHB63
 , ('https://boom.money/nft/boombox','Boomboxes','SP497E7RX3233ATBS2AB9G4WTHB63X5PBSP5VGAQ.boombox%')
 , ('https://boom.money/nft/boombox','Boomboxes','SP1QK1AZ24R132C0D84EEQ8Y2JDHARDR58R72E1ZW.boombox%')
 , ('https://boom.money/nft/boombox','Boomboxes','SPMS4E9RQ4GCGG68R6D15PKV01TYNCBPYZG1ZMFE.boombox%')
+, ('https://bitcoinmonkeys.io/','Bitcoin Monkeys','SP2KAF9RF86PVX3NEE27DFV1CQX0T4WGR41X3S45C.bitcoin-monkeys%')
 , ('https://bitcoinmonkeys.io/','Bitcoin Monkeys','SP125J1ADVYWGWB9NQRCVGKYAG73R17ZNMV17XEJ7.%')
 , ('https://bitcoinmonkeys.io/','Bitcoin Monkeys','SPMWNPDCQMCXANG6BYK2TJKXA09BTSTES0VVBXVR.%')
 , ('https://nonnish.com/','Nonnish','SPVVASJ83H223TCEP8Z8SHZDFDBFXSM4EGSWCVR2.%')
